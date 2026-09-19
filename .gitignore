@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+.vs/
+.idea/
+coverage/
+*.user
+*.suo
+*.log

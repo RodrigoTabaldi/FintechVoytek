@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Voytek.Workers</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Voytek.Application\Voytek.Application.csproj" />
+    <ProjectReference Include="..\Voytek.Contracts\Voytek.Contracts.csproj" />
+    <ProjectReference Include="..\Voytek.Infrastructure\Voytek.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

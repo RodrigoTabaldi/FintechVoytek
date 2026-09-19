@@ -1,0 +1,1672 @@
+VOYTEK — AI CONTEXT / CONTEXTO MESTRE DO MVP
+Versão: 1.0
+Finalidade: fornecer contexto permanente para agentes de IA que trabalham no desenvolvimento da Voytek.
+
+============================================================
+1. REGRA DE USO DESTE ARQUIVO
+============================================================
+
+Este arquivo é a fonte principal de contexto de produto para o MVP da Voytek.
+
+Antes de criar, alterar, revisar ou sugerir código, arquitetura, banco de dados, endpoints, telas, regras de negócio ou integrações, a IA deve considerar este contexto.
+
+A IA NÃO deve:
+- inventar funcionalidades fora do escopo;
+- transformar o MVP em uma arquitetura desnecessariamente complexa;
+- criar pagamentos bancários reais no MVP;
+- permitir que um LLM seja a autoridade final de uma transação;
+- confundir saldo lógico da Voytek com dinheiro custodiado pela Voytek;
+- adicionar microserviços, Kubernetes, Redis ou mensageria externa sem necessidade concreta;
+- criar features futuras como se já fizessem parte do MVP.
+
+Se houver conflito entre uma solicitação posterior explícita do responsável pelo produto e este arquivo, a solicitação posterior pode atualizar o contexto.
+
+============================================================
+2. O QUE É A VOYTEK
+============================================================
+
+Voytek é uma plataforma de infraestrutura financeira, operacional e de governança para agentes de inteligência artificial.
+
+A ideia central é permitir que empresas deem a agentes de IA:
+
+- objetivos;
+- budgets/orçamentos;
+- permissões;
+- regras;
+- níveis de autonomia;
+- capacidade de propor ações;
+- capacidade controlada de executar ações;
+- aprovação humana quando necessária;
+- rastreabilidade completa.
+
+A empresa continua controlando dinheiro, acesso, finalidade e responsabilidade.
+
+Resumo conceitual:
+
+VOYTEK = AI + DINHEIRO + EXECUÇÃO + CONTROLE.
+
+Outra forma de resumir:
+
+"Dinheiro programável por objetivo para agentes de IA."
+
+Exemplo:
+
+Uma empresa possui um agente responsável por EPI.
+
+Objetivo:
+"Manter estoque suficiente de EPIs para 100 funcionários."
+
+Budget:
+R$ 8.000 por mês.
+
+Regras:
+- comprar apenas de fornecedores autorizados;
+- máximo de R$ 2.000 por compra sem aprovação;
+- compras acima de R$ 2.000 exigem aprovação humana;
+- não ultrapassar o budget mensal;
+- somente categoria EPI;
+- agente precisa estar ativo.
+
+O agente pode identificar uma necessidade e propor uma compra.
+
+A Voytek verifica as regras antes de permitir qualquer ação.
+
+============================================================
+3. PROBLEMA QUE A VOYTEK RESOLVE
+============================================================
+
+Agentes de IA podem analisar dados, planejar, usar ferramentas e executar tarefas.
+
+O problema aparece quando esses agentes passam a:
+
+- gastar dinheiro;
+- contratar serviços;
+- comprar produtos;
+- usar APIs pagas;
+- consumir cloud;
+- negociar com fornecedores;
+- acessar sistemas;
+- tomar ações com impacto financeiro.
+
+Uma empresa não pode simplesmente entregar um cartão, uma conta ou credenciais ilimitadas para um agente.
+
+É necessário controlar:
+
+- quem é o agente;
+- qual é seu objetivo;
+- quanto pode gastar;
+- onde pode gastar;
+- com quem pode transacionar;
+- qual categoria é permitida;
+- quando precisa de aprovação;
+- quais sistemas pode acessar;
+- qual foi o motivo da ação;
+- qual foi o resultado;
+- quem autorizou;
+- o que aconteceu depois.
+
+A Voytek é a camada que fornece esse controle.
+
+============================================================
+4. PRINCÍPIO MAIS IMPORTANTE DO SISTEMA
+============================================================
+
+O LLM NÃO É A AUTORIDADE FINANCEIRA FINAL.
+
+O fluxo conceitual é:
+
+AGENTE/LLM
+    ->
+PROPÕE UMA AÇÃO
+    ->
+VOYTEK RECEBE A SOLICITAÇÃO
+    ->
+POLICY ENGINE
+    ->
+ALLOW / DENY / HUMAN_APPROVAL
+    ->
+EXECUÇÃO OU SIMULAÇÃO
+    ->
+LEDGER
+    ->
+OUTCOME
+    ->
+AUDIT
+
+O LLM pode:
+
+- interpretar contexto;
+- analisar informações;
+- comparar alternativas;
+- planejar;
+- explicar;
+- estruturar uma intenção;
+- sugerir uma ação;
+- selecionar uma ferramenta permitida.
+
+O LLM não pode sozinho:
+
+- autorizar uma despesa;
+- ignorar um budget;
+- ignorar uma policy;
+- alterar seu próprio nível de autonomia;
+- aprovar sua própria solicitação;
+- ignorar um DENY;
+- executar uma operação sensível sem passar pelo Policy Engine.
+
+============================================================
+5. ESCOPO DO MVP
+============================================================
+
+O MVP deve provar a seguinte hipótese:
+
+"Uma empresa consegue entregar objetivos, budget e autonomia controlada para agentes de IA e permitir que eles trabalhem sob regras verificáveis, aprovação humana, simulação e auditoria."
+
+O MVP inclui:
+
+1. usuários e autenticação;
+2. empresas/tenants;
+3. memberships e roles;
+4. Voytek Account / identidade lógica do agente;
+5. gerenciamento de agentes;
+6. Objectives;
+7. Budgets;
+8. sub-budgets/contas lógicas;
+9. níveis de autonomia;
+10. Policies;
+11. Authorization / Policy Engine;
+12. ALLOW / DENY / HUMAN_APPROVAL;
+13. Smart Approvals;
+14. Kill Switch;
+15. Shadow Mode;
+16. Ledger;
+17. Audit Log;
+18. Outcome Ledger;
+19. Agent-to-Agent Commerce experimental;
+20. AI Orchestrator;
+21. API para agentes e sistemas;
+22. dashboard web;
+23. notificações básicas;
+24. observabilidade técnica;
+25. controle de custo/uso de IA.
+
+============================================================
+6. USUÁRIOS, EMPRESAS E MULTI-TENANCY
+============================================================
+
+A Voytek é SaaS multi-tenant.
+
+Cada empresa é um Tenant.
+
+Dados de uma empresa nunca podem ser acessados por outra empresa.
+
+Entidades relevantes devem possuir TenantId quando aplicável.
+
+Papéis iniciais:
+
+OWNER
+- proprietário da organização;
+- maior nível administrativo.
+
+ADMIN
+- administra usuários, agentes, policies e configurações.
+
+MANAGER
+- gerencia operações, objetivos, budgets e approvals permitidos.
+
+OPERATOR
+- acompanha e opera fluxos permitidos.
+
+VIEWER
+- acesso somente de leitura às informações autorizadas.
+
+O backend deve sempre validar tenant e autorização.
+
+O frontend nunca é a única barreira de segurança.
+
+============================================================
+7. VOYTEK ACCOUNT / MACHINE ACCOUNT
+============================================================
+
+Cada agente deve possuir uma identidade lógica dentro da Voytek.
+
+Essa identidade representa sua "conta de máquina".
+
+Ela NÃO é inicialmente uma conta bancária.
+
+A Voytek Account reúne:
+
+- AgentId;
+- TenantId;
+- identidade do agente;
+- status;
+- nível de autonomia;
+- objetivos;
+- budgets;
+- policies;
+- permissões;
+- histórico;
+- decisões;
+- approvals;
+- ledger;
+- outcomes.
+
+Objetivo:
+
+dar a cada agente uma identidade econômica e operacional controlável.
+
+============================================================
+8. AGENTS
+============================================================
+
+A plataforma deve permitir:
+
+- criar agente;
+- editar agente;
+- consultar agente;
+- listar agentes;
+- ativar agente;
+- suspender agente;
+- desativar agente;
+- associar objetivos;
+- associar budgets;
+- associar policies;
+- definir autonomia;
+- consultar histórico;
+- acionar Kill Switch.
+
+Status possíveis inicialmente:
+
+DRAFT
+ACTIVE
+SUSPENDED
+DISABLED
+
+Um agente suspenso ou desativado não pode iniciar novas ações sensíveis.
+
+============================================================
+9. OBJECTIVES
+============================================================
+
+Um Objective representa o resultado que o agente deve buscar.
+
+Exemplos:
+
+"Reduzir o custo de cloud em 15%."
+
+"Manter estoque de EPI suficiente para 100 funcionários."
+
+"Gerenciar até R$ 5.000 por mês em ferramentas de marketing."
+
+"Reduzir assinaturas SaaS ociosas."
+
+Campos conceituais:
+
+- Id;
+- TenantId;
+- AgentId;
+- Name;
+- Description;
+- Status;
+- StartDate;
+- EndDate opcional;
+- métricas/resultado esperado quando aplicável.
+
+Um gasto ou ação deve poder ser associado ao Objective que o justifica.
+
+============================================================
+10. BUDGETS E SUBACCOUNTS
+============================================================
+
+Budget é o orçamento lógico disponível para um agente ou objetivo.
+
+No MVP, NÃO representa dinheiro custodiado pela Voytek.
+
+Estados/valores importantes:
+
+TOTAL
+RESERVED
+SPENT
+AVAILABLE
+
+Conceito:
+
+AVAILABLE = TOTAL - RESERVED - SPENT
+
+Fluxo típico:
+
+AVAILABLE
+    ->
+RESERVED
+    ->
+EXECUTED
+
+ou:
+
+AVAILABLE
+    ->
+RESERVED
+    ->
+RELEASED
+
+Reserva é importante para evitar que duas operações simultâneas gastem o mesmo saldo.
+
+Valores monetários:
+
+NUNCA usar float ou double.
+
+Usar decimal no C# e numeric/decimal no PostgreSQL.
+
+Subaccounts/sub-budgets permitem separar orçamento por:
+
+- agente;
+- objetivo;
+- categoria;
+- finalidade.
+
+Exemplo:
+
+Budget total da empresa: R$ 30.000.
+
+Marketing Agent: R$ 5.000.
+EPI Agent: R$ 8.000.
+SaaS Agent: R$ 3.000.
+IT/Cloud Agent: R$ 4.000.
+Procurement: R$ 10.000.
+
+============================================================
+11. NÍVEIS DE AUTONOMIA
+============================================================
+
+A Voytek deve possuir inicialmente três níveis:
+
+MANUAL
+
+O agente:
+- analisa;
+- recomenda;
+- cria proposta;
+- não executa ação sensível sozinho.
+
+SUPERVISED
+
+O agente:
+- pode executar ações dentro de limites;
+- exceções ou operações acima de determinados limites exigem humano.
+
+AUTONOMOUS
+
+O agente:
+- possui maior autonomia operacional;
+- ainda continua sujeito a budgets, policies, segurança e Kill Switch.
+
+IMPORTANTE:
+
+AUTONOMOUS NÃO significa "sem regras".
+
+Nenhum nível de autonomia pode ignorar o Policy Engine.
+
+============================================================
+12. POLICY ENGINE / FINANCIAL FIREWALL
+============================================================
+
+Este é um dos componentes centrais da Voytek.
+
+Toda ação sensível deve passar pelo Policy Engine.
+
+Entrada conceitual:
+
+AuthorizationRequest.
+
+Pode conter:
+
+- TenantId;
+- AgentId;
+- ObjectiveId;
+- BudgetId;
+- ActionType;
+- Amount;
+- Currency;
+- Supplier/Merchant;
+- Category;
+- Purpose;
+- timestamp;
+- contexto adicional;
+- idempotency key;
+- correlation id.
+
+O motor pode verificar:
+
+- agente está ativo?;
+- budget existe?;
+- budget possui saldo?;
+- valor está dentro do limite?;
+- fornecedor é permitido?;
+- categoria é permitida?;
+- horário é permitido?;
+- objetivo está ativo?;
+- finalidade corresponde ao objetivo?;
+- nível de autonomia permite?;
+- existe regra que exige humano?;
+- existe regra que bloqueia?;
+- Kill Switch está ativo?;
+- operação já foi processada?
+
+Saídas obrigatórias:
+
+ALLOW
+DENY
+HUMAN_APPROVAL
+
+Toda decisão deve registrar o motivo.
+
+Exemplo:
+
+ALLOW
+Reason:
+"Valor R$ 180 abaixo do limite automático de R$ 500; fornecedor autorizado; budget disponível."
+
+DENY
+Reason:
+"Fornecedor não permitido pela policy POL-019."
+
+HUMAN_APPROVAL
+Reason:
+"Valor R$ 2.500 excede limite automático de R$ 2.000."
+
+============================================================
+13. INTENT-TO-PAY / OBJECTIVE-BASED MONEY
+============================================================
+
+Conceito importante da Voytek:
+
+não verificar somente "quanto" e "onde".
+
+Também verificar "por quê".
+
+Uma ação pode carregar Purpose/Intent.
+
+Exemplo:
+
+Objective:
+"Reduzir custo de cloud."
+
+Proposta:
+"Comprar 20 camisetas."
+
+Mesmo que exista saldo, a ação não corresponde ao objetivo.
+
+O sistema pode utilizar IA para interpretar contexto ou finalidade quando necessário.
+
+Entretanto:
+
+a IA fornece classificação/contexto.
+
+A decisão final continua sendo aplicada pelo Policy Engine.
+
+============================================================
+14. SMART APPROVALS
+============================================================
+
+Quando uma operação retorna HUMAN_APPROVAL:
+
+o sistema cria uma ApprovalRequest.
+
+Ela deve conter:
+
+- agente;
+- objetivo;
+- ação;
+- valor;
+- fornecedor;
+- motivo;
+- policy responsável pelo escalonamento;
+- contexto necessário;
+- status;
+- solicitante;
+- aprovador;
+- timestamps.
+
+Estados possíveis:
+
+PENDING
+APPROVED
+REJECTED
+EXPIRED
+CANCELLED
+
+O usuário autorizado pode:
+
+- aprovar;
+- rejeitar;
+- consultar detalhes.
+
+Uma aprovação deve ser idempotente.
+
+Não permitir aprovação dupla.
+
+O objetivo de Smart Approvals é evitar mandar tudo para humano.
+
+Apenas exceções ou operações que realmente precisam de decisão humana devem ser escaladas.
+
+============================================================
+15. KILL SWITCH
+============================================================
+
+Deve existir uma forma de suspender rapidamente um agente.
+
+Ao ativar o Kill Switch:
+
+- novas autorizações devem ser bloqueadas;
+- novas ações sensíveis devem parar;
+- o evento deve ser auditado.
+
+O Kill Switch deve ser validado no backend.
+
+============================================================
+16. SHADOW MODE
+============================================================
+
+Shadow Mode é uma funcionalidade central do MVP.
+
+Objetivo:
+
+permitir que a empresa teste um agente antes de liberar ações reais.
+
+O agente continua:
+
+- recebendo objetivo;
+- analisando contexto;
+- criando propostas;
+- passando pelo Policy Engine;
+- recebendo ALLOW/DENY/HUMAN_APPROVAL.
+
+Mas nenhuma ação financeira/externa real é executada.
+
+O sistema registra:
+
+- o que o agente faria;
+- quanto gastaria;
+- onde gastaria;
+- quais policies foram acionadas;
+- o que seria permitido;
+- o que seria negado;
+- o que exigiria humano;
+- resultado estimado quando disponível.
+
+IMPORTANTE:
+
+Shadow Mode deve usar o mesmo pipeline de autorização da operação real.
+
+A diferença deve estar na execução.
+
+Real executor -> não chamado.
+
+Simulation executor -> chamado.
+
+============================================================
+17. LEDGER
+============================================================
+
+O Ledger registra os movimentos econômicos relevantes.
+
+Ele deve ser append-only.
+
+Não alterar silenciosamente um registro financeiro histórico.
+
+Correções devem usar novos lançamentos/compensações.
+
+Eventos possíveis:
+
+BUDGET_ALLOCATED
+BUDGET_RESERVED
+BUDGET_RELEASED
+EXPENSE_AUTHORIZED
+EXPENSE_DENIED
+EXPENSE_EXECUTED
+ADJUSTMENT
+
+Cada registro deve poder carregar:
+
+- TenantId;
+- AgentId;
+- ObjectiveId;
+- BudgetId;
+- AuthorizationId;
+- Amount;
+- Currency;
+- Type;
+- Timestamp;
+- CorrelationId;
+- metadata.
+
+============================================================
+18. AUDIT LOG
+============================================================
+
+Audit Log registra ações administrativas e de segurança.
+
+Exemplos:
+
+- usuário criou agente;
+- usuário mudou autonomia;
+- policy foi criada;
+- policy foi alterada;
+- budget foi modificado;
+- agente foi suspenso;
+- approval foi aprovado;
+- approval foi rejeitado;
+- API key foi criada/revogada;
+- Kill Switch foi acionado.
+
+Audit Log deve permitir responder:
+
+Quem fez?
+O quê?
+Quando?
+Em qual tenant?
+Em qual recurso?
+Qual era o correlation id?
+Qual foi o resultado?
+
+============================================================
+19. OUTCOME LEDGER
+============================================================
+
+A Voytek não deve medir somente quanto o agente gastou.
+
+Também deve medir o resultado.
+
+Exemplo:
+
+Marketing Agent:
+
+Gasto:
+R$ 2.000.
+
+Resultado:
+93 leads.
+
+CPL:
+R$ 21,50.
+
+Outro exemplo:
+
+EPI Agent:
+
+Compra:
+R$ 5.200.
+
+Resultado:
+estoque normalizado para 30 dias.
+
+Economia:
+R$ 430 em relação à cotação anterior.
+
+Outcome pode conter:
+
+- AgentId;
+- ObjectiveId;
+- Transaction/AuthorizationId;
+- Metric;
+- Value;
+- Unit;
+- Description;
+- Timestamp.
+
+O Outcome Ledger é importante para futuramente avaliar:
+
+- eficiência;
+- ROI;
+- confiança;
+- autonomia;
+- performance dos agentes.
+
+============================================================
+20. AGENT-TO-AGENT COMMERCE — MVP EXPERIMENTAL
+============================================================
+
+O MVP deve permitir experimentar transações econômicas entre agentes.
+
+Exemplo:
+
+Agent A precisa de um serviço/recurso.
+
+Agent B consegue fornecer.
+
+Agent A cria CommerceRequest.
+
+Estados possíveis:
+
+REQUESTED
+NEGOTIATING
+ACCEPTED
+REJECTED
+COMPLETED
+CANCELLED
+
+A operação pode conter:
+
+- BuyerAgentId;
+- SellerAgentId;
+- ObjectiveId;
+- Amount;
+- Currency;
+- Description;
+- status;
+- timestamps.
+
+Toda operação continua passando por:
+
+- budget;
+- policies;
+- authorization;
+- approval quando necessário;
+- ledger/audit.
+
+No MVP:
+
+o settlement é lógico ou simulado.
+
+NÃO criar uma rede financeira real entre empresas nesta etapa.
+
+============================================================
+21. AI ORCHESTRATOR
+============================================================
+
+A Voytek pode ter seus próprios agentes e também receber solicitações de agentes externos.
+
+O AI Orchestrator organiza o uso do LLM.
+
+Deve existir abstração:
+
+ILLMProvider
+
+Objetivo:
+
+não acoplar todo o produto a um único fornecedor/modelo.
+
+Responsabilidades:
+
+- montar contexto mínimo necessário;
+- chamar o LLM;
+- solicitar structured output;
+- validar formato;
+- controlar tools;
+- registrar tokens/custo/latência;
+- aplicar timeout;
+- lidar com falha;
+- devolver proposta estruturada para a aplicação.
+
+Estratégia de custo:
+
+NÃO usar LLM quando uma regra determinística resolve.
+
+Exemplo:
+
+R$ 180.
+Fornecedor permitido.
+Budget disponível.
+Limite automático R$ 500.
+
+Isso deve ser resolvido em C#.
+
+Custo de LLM:
+ZERO.
+
+LLM deve ser usado quando for necessário:
+
+- interpretar texto;
+- entender intenção;
+- comparar alternativas;
+- analisar informações não estruturadas;
+- planejar;
+- transformar resultado em ação estruturada.
+
+Modelo econômico padrão planejado:
+
+GPT-5.6 Luna Low ou modelo equivalente econômico/rápido.
+
+Casos complexos podem futuramente ser roteados para modelos mais capazes.
+
+O sistema deve monitorar:
+
+- input tokens;
+- output tokens;
+- custo;
+- latência;
+- provider;
+- model;
+- tenant;
+- agent.
+
+============================================================
+22. API
+============================================================
+
+A Voytek deve ser API-first.
+
+Base sugerida:
+
+/api/v1
+
+Recursos principais:
+
+/auth
+/tenants
+/users
+/memberships
+/agents
+/objectives
+/budgets
+/policies
+/authorizations
+/approvals
+/shadow
+/ledger
+/outcomes
+/commerce
+/audit
+/settings
+
+Integrações de agentes/sistemas devem poder usar API credentials.
+
+Operações sensíveis devem suportar:
+
+Idempotency-Key.
+
+Respostas de erro devem seguir padrão consistente.
+
+Usar correlation id para rastrear fluxo completo.
+
+============================================================
+23. DASHBOARD WEB
+============================================================
+
+Frontend:
+
+React + TypeScript + Vite.
+
+Telas principais do MVP:
+
+LOGIN / REGISTER
+
+- autenticação;
+- criação de conta;
+- recuperação de senha.
+
+DASHBOARD
+
+Mostrar resumo de:
+
+- agentes ativos;
+- agentes suspensos;
+- budget total;
+- disponível;
+- reservado;
+- gasto;
+- approvals pendentes;
+- ALLOW/DENY/HUMAN_APPROVAL;
+- atividade recente;
+- Shadow Mode;
+- outcomes principais.
+
+AGENTS
+
+- lista;
+- status;
+- autonomia;
+- objetivo;
+- budget;
+- criar/editar.
+
+AGENT DETAIL
+
+- informações;
+- status;
+- autonomia;
+- objetivos;
+- budgets;
+- policies;
+- decisões;
+- approvals;
+- ledger;
+- outcomes;
+- Shadow Mode;
+- Kill Switch.
+
+OBJECTIVES
+
+- listar;
+- criar;
+- editar;
+- ativar;
+- concluir.
+
+BUDGETS
+
+- total;
+- reservado;
+- gasto;
+- disponível;
+- histórico.
+
+POLICIES
+
+- listar;
+- criar;
+- editar;
+- ativar/desativar;
+- visualizar regras.
+
+APPROVALS
+
+- pendentes;
+- aprovados;
+- rejeitados;
+- detalhes;
+- approve/reject.
+
+SHADOW MODE
+
+- ações simuladas;
+- gasto projetado;
+- decisões;
+- policies acionadas;
+- impacto estimado.
+
+LEDGER
+
+- histórico econômico;
+- filtros;
+- agente;
+- objetivo;
+- tipo;
+- período.
+
+OUTCOMES
+
+- métricas;
+- resultados;
+- agente;
+- objetivo.
+
+COMMERCE
+
+- requests;
+- buyer/seller agent;
+- valor;
+- status.
+
+AUDIT
+
+- eventos administrativos e de segurança.
+
+SETTINGS
+
+- empresa;
+- membros;
+- roles;
+- API credentials;
+- configurações.
+
+============================================================
+24. NOTIFICAÇÕES DO MVP
+============================================================
+
+Notificações básicas podem incluir:
+
+- approval pendente;
+- approval aprovado;
+- approval rejeitado;
+- agente suspenso;
+- policy bloqueou ação relevante;
+- budget próximo do limite;
+- falha operacional importante.
+
+Meios iniciais:
+
+- dentro do app;
+- e-mail quando necessário.
+
+Não criar um sistema excessivamente complexo de notificações no MVP.
+
+============================================================
+25. ARQUITETURA DO MVP
+============================================================
+
+Estratégia:
+
+MODULAR MONOLITH.
+
+Não começar com dezenas de microserviços físicos.
+
+Motivo:
+
+- menor custo;
+- desenvolvimento mais rápido;
+- deploy mais simples;
+- debugging mais simples;
+- equipe inicial pequena;
+- ainda mantém domínios separados;
+- permite extrair microserviços futuramente.
+
+Stack principal:
+
+Backend:
+C# + ASP.NET Core.
+
+Frontend:
+React + TypeScript + Vite.
+
+ORM:
+Entity Framework Core.
+
+Banco:
+PostgreSQL.
+
+Cloud:
+Microsoft Azure.
+
+API hosting:
+Azure Container Apps.
+
+Object storage:
+Azure Blob Storage.
+
+Containers:
+Docker.
+
+CI/CD:
+GitHub Actions.
+
+Arquitetura lógica:
+
+Voytek.Domain
+Voytek.Application
+Voytek.Infrastructure
+Voytek.Api
+Voytek.Contracts
+Voytek.SharedKernel
+Voytek.Workers
+
+Módulos:
+
+Identity
+Tenancy
+Agents
+Objectives
+Budgets
+Policies
+Approvals
+ShadowMode
+Ledger
+Outcomes
+Commerce
+AI
+Notifications
+Audit
+
+Princípios:
+
+- Clean Architecture pragmática;
+- DDD onde agrega valor;
+- CQRS seletivamente;
+- dependency inversion;
+- adapters para integrações externas;
+- Strategy para políticas/integrações quando adequado;
+- events internos;
+- idempotência;
+- transações;
+- observabilidade.
+
+============================================================
+26. BANCO DE DADOS
+============================================================
+
+Banco principal:
+
+PostgreSQL.
+
+Inicialmente:
+
+um cluster/banco gerenciado pode atender o MVP.
+
+Não criar banco físico separado por módulo sem necessidade.
+
+Schemas lógicos podem ser usados:
+
+identity
+core
+finance
+policy
+approval
+ledger
+outcome
+commerce
+audit
+integration
+
+Regras:
+
+- TenantId quando aplicável;
+- timestamps em UTC;
+- IDs consistentes;
+- índices por TenantId e campos de consulta;
+- constraints importantes no banco;
+- migrations versionadas;
+- valores monetários em numeric/decimal;
+- concorrência tratada em budgets;
+- ledger append-only.
+
+============================================================
+27. IDEMPOTÊNCIA
+============================================================
+
+Operações sensíveis não podem acontecer duas vezes por acidente.
+
+Exemplos:
+
+- reservar budget;
+- executar ação;
+- criar movimento financeiro;
+- processar webhook futuro;
+- concluir commerce;
+- aprovar request.
+
+Usar Idempotency-Key quando adequado.
+
+Retry de rede nunca pode duplicar uma operação.
+
+============================================================
+28. CONCORRÊNCIA DE BUDGET
+============================================================
+
+Cenário:
+
+Budget disponível:
+R$ 1.000.
+
+Dois agentes/processos tentam reservar R$ 800 ao mesmo tempo.
+
+O sistema não pode permitir R$ 1.600.
+
+A reserva precisa ser transacional.
+
+Pode usar:
+
+- transaction;
+- optimistic concurrency;
+- row locking quando necessário;
+- constraints.
+
+Consistência financeira é mais importante que conveniência.
+
+============================================================
+29. EVENTOS
+============================================================
+
+O MVP pode começar com eventos in-process.
+
+Não é obrigatório usar RabbitMQ ou Azure Service Bus inicialmente.
+
+Criar abstrações que permitam evolução.
+
+Exemplos:
+
+AgentCreated
+AgentSuspended
+ObjectiveCreated
+BudgetReserved
+BudgetReleased
+AuthorizationAllowed
+AuthorizationDenied
+ApprovalRequested
+ApprovalApproved
+ApprovalRejected
+ShadowActionRecorded
+OutcomeRecorded
+CommerceRequested
+CommerceCompleted
+
+Quando a escala justificar, eventos assíncronos podem migrar para broker externo.
+
+============================================================
+30. SEGURANÇA
+============================================================
+
+Princípios:
+
+- least privilege;
+- zero trust entre ações sensíveis;
+- tenant isolation;
+- server-side authorization;
+- secrets fora do código;
+- HTTPS;
+- rate limiting;
+- validação de input;
+- logs sem secrets;
+- auditabilidade;
+- tokens com escopo;
+- expiração/revogação de credentials;
+- proteção contra replay quando aplicável.
+
+Nunca colocar em prompt de LLM:
+
+- senhas;
+- API keys desnecessárias;
+- tokens brutos desnecessários;
+- secrets.
+
+O agente deve receber apenas o contexto necessário.
+
+============================================================
+31. OBSERVABILIDADE
+============================================================
+
+Registrar:
+
+- logs estruturados;
+- correlation id;
+- erros;
+- latência;
+- chamadas externas;
+- decisões do Policy Engine;
+- falhas;
+- tokens de IA;
+- custo estimado de IA;
+- modelo/provider;
+- uso por tenant;
+- uso por agente.
+
+Métricas importantes:
+
+- requests;
+- error rate;
+- latency;
+- ALLOW rate;
+- DENY rate;
+- HUMAN_APPROVAL rate;
+- approval latency;
+- LLM cost;
+- LLM tokens;
+- actions per agent;
+- budget utilization.
+
+============================================================
+32. INFRAESTRUTURA E CUSTO
+============================================================
+
+O MVP deve ser barato.
+
+Backend/API:
+
+Azure Container Apps.
+
+Configuração inicial desejada:
+
+Consumption.
+min replicas = 0.
+max replicas = 1 inicialmente.
+
+Aumentar somente conforme necessidade.
+
+Evitar inicialmente:
+
+- AKS/Kubernetes;
+- Redis sem necessidade;
+- RabbitMQ sem necessidade;
+- Service Bus sem necessidade;
+- Elasticsearch;
+- infraestrutura dedicada por módulo;
+- banco por microserviço;
+- servidores permanentes sem necessidade.
+
+O produto deve ser preparado para crescer, mas não pagar pelo crescimento antes de precisar dele.
+
+============================================================
+33. FUNCIONALIDADES QUE NÃO ENTRAM NO MVP
+============================================================
+
+As funcionalidades abaixo fazem parte da visão futura da Voytek, mas NÃO devem ser implementadas como parte do MVP sem solicitação explícita.
+
+VOYTEK VAULT
+
+Objetivo:
+guardar e fornecer credenciais, OAuth, tokens e secrets com menor privilégio.
+
+Futuro:
+agente idealmente não vê secret bruto.
+
+VIRTUAL CARDS / VOYTEK CARD
+
+Objetivo:
+cartão virtual individual por agente.
+
+Futuro:
+limites por valor, merchant, categoria, período e policy.
+
+Depende de:
+parceiro BaaS/emissor e compliance.
+
+REAL PAYMENTS
+
+Objetivo:
+executar pagamentos reais.
+
+Depende de:
+parceiros financeiros, reconciliação, webhooks e compliance.
+
+PIX / OPEN FINANCE
+
+Objetivo:
+rails bancários no Brasil.
+
+Depende de:
+instituição/parceiro regulado.
+
+VOYTEK FX
+
+Objetivo:
+pagamentos e conversões internacionais.
+
+Depende de:
+parceiros regulados.
+
+SMART PROCUREMENT COMPLETO
+
+Objetivo:
+cotação, negociação, seleção e compra automática com fornecedores.
+
+O MVP pode preparar domínio/agentes, mas não precisa implementar toda a rede de fornecedores.
+
+AUTOMATIC SAAS MANAGEMENT COMPLETO
+
+Objetivo:
+detectar, renovar, cancelar e otimizar assinaturas.
+
+Depende de:
+conectores, billing, e-mail, cards e APIs.
+
+AGENT MARKETPLACE
+
+Objetivo:
+catálogo de agentes prontos para empresas.
+
+Exemplos:
+- Procurement Agent;
+- SaaS Agent;
+- Cloud Cost Agent;
+- Marketing Agent;
+- Travel Agent;
+- Accounts Payable Agent;
+- IT Agent;
+- EPI Agent.
+
+FINANCIAL MEMORY PER AGENT
+
+Objetivo:
+criar perfil histórico econômico de cada agente.
+
+Pode usar:
+- padrões de gasto;
+- fornecedores;
+- approvals;
+- outcomes;
+- incidentes.
+
+AUTONOMY SCORE
+
+Objetivo:
+medir confiança do agente com base no histórico.
+
+Pode considerar:
+- taxa de sucesso;
+- DENYs;
+- approvals;
+- anomalias;
+- outcomes;
+- economia;
+- incidentes.
+
+BUDGET MARKETPLACE
+
+Objetivo:
+permitir realocação controlada de budget entre agentes/objetivos.
+
+AGENT ESCROW
+
+Objetivo:
+reservar dinheiro até condição/entrega ser confirmada.
+
+PROOF OF WORK BEFORE PAY
+
+Objetivo:
+liberar pagamento somente após evidência verificável de trabalho/entrega.
+
+MACHINE-NATIVE INVOICES / RECEIPTS
+
+Objetivo:
+faturas e recibos estruturados para leitura e reconciliação por agentes.
+
+VOYTEK GUARD
+
+Objetivo:
+camada avançada de risco e segurança.
+
+Pode detectar:
+- comportamento anormal;
+- credencial comprometida;
+- prompt injection levando a ação financeira;
+- padrão de gasto estranho;
+- fornecedor suspeito;
+- mudanças anormais de comportamento.
+
+VOYTEK ID
+
+Objetivo:
+identidade verificável e reputação de agentes.
+
+CROSS-COMPANY AGENT COMMERCE
+
+Objetivo:
+permitir que agentes de empresas diferentes negociem e liquidem operações.
+
+Não confundir com Agent-to-Agent Commerce experimental do MVP, que é lógico/simulado.
+
+============================================================
+34. AGENTES FUTUROS IMPORTANTES
+============================================================
+
+EPI / PROCUREMENT AGENT
+
+Objetivo:
+manter estoque e comprar produtos de forma eficiente.
+
+Pode:
+- detectar necessidade;
+- cotar;
+- comparar;
+- selecionar;
+- solicitar aprovação;
+- futuramente comprar.
+
+SAAS AGENT
+
+Objetivo:
+reduzir desperdício com assinaturas.
+
+Pode:
+- detectar renovação;
+- identificar duplicidade;
+- encontrar software ocioso;
+- recomendar cancelamento;
+- futuramente cancelar/renovar.
+
+CLOUD COST AGENT
+
+Objetivo:
+reduzir gasto de cloud.
+
+Pode:
+- analisar consumo;
+- encontrar desperdício;
+- sugerir otimização;
+- executar ações permitidas.
+
+MARKETING AGENT
+
+Objetivo:
+operar marketing com budget.
+
+Pode:
+- contratar ferramentas;
+- contratar serviços;
+- usar APIs;
+- acompanhar Outcome Ledger.
+
+TRAVEL AGENT
+
+Objetivo:
+organizar viagens corporativas sob policy.
+
+ACCOUNTS PAYABLE AGENT
+
+Objetivo:
+validar e preparar contas a pagar.
+
+IT AGENT
+
+Objetivo:
+gerenciar licenças, APIs, hardware e serviços de TI.
+
+============================================================
+35. EXEMPLO COMPLETO DE FLUXO
+============================================================
+
+Cenário:
+
+EPI Agent percebe que o estoque de luvas está abaixo do mínimo.
+
+Objective:
+
+"Manter estoque de EPI suficiente para 100 funcionários."
+
+Budget mensal:
+
+R$ 8.000.
+
+Disponível:
+
+R$ 5.300.
+
+Proposta:
+
+Comprar R$ 1.450 em luvas do fornecedor ABC.
+
+Fluxo:
+
+1. Agente identifica a necessidade.
+
+2. LLM, se necessário, transforma contexto em proposta estruturada.
+
+3. Aplicação valida formato e identidade.
+
+4. AuthorizationRequest é criada.
+
+5. Policy Engine verifica:
+   - agente ativo;
+   - objective ativo;
+   - budget disponível;
+   - fornecedor permitido;
+   - categoria EPI;
+   - valor;
+   - autonomia;
+   - policies;
+   - Kill Switch.
+
+6. Resultado:
+
+ALLOW.
+
+7. Budget pode reservar R$ 1.450.
+
+8. Se Shadow Mode estiver ativo:
+   - nenhuma compra real acontece;
+   - sistema registra "would execute";
+   - ledger/simulação registra o cenário.
+
+9. Se execução real existir no futuro:
+   - executor autorizado realiza ação;
+   - operação é confirmada;
+   - reserva vira gasto.
+
+10. Ledger registra.
+
+11. Audit registra eventos relevantes.
+
+12. Outcome posteriormente pode registrar:
+
+"Estoque normalizado para 30 dias."
+
+============================================================
+36. DEFINIÇÃO DE MVP CONCLUÍDO
+============================================================
+
+O MVP está funcional quando uma empresa consegue:
+
+1. criar conta;
+2. criar organização;
+3. adicionar usuários;
+4. criar agente;
+5. definir autonomia;
+6. criar objetivo;
+7. atribuir budget;
+8. criar policies;
+9. enviar AuthorizationRequest;
+10. receber ALLOW/DENY/HUMAN_APPROVAL;
+11. aprovar/rejeitar quando necessário;
+12. testar agente em Shadow Mode;
+13. consultar Ledger;
+14. consultar Audit;
+15. registrar Outcome;
+16. testar Commerce lógico entre agentes;
+17. usar AI Orchestrator para propostas;
+18. acompanhar tudo pelo dashboard;
+19. integrar agente/sistema pela API;
+20. suspender agente pelo Kill Switch.
+
+Tudo isso deve funcionar sem a Voytek precisar custodiar dinheiro real.
+
+============================================================
+37. REGRA FINAL PARA QUALQUER IA QUE TRABALHE NO PROJETO
+============================================================
+
+Ao implementar uma feature, sempre perguntar internamente:
+
+1. Qual tenant é dono deste dado?
+2. Qual agente está agindo?
+3. Qual objetivo justifica a ação?
+4. Existe budget?
+5. Existe policy?
+6. Qual nível de autonomia?
+7. Precisa de humano?
+8. A operação é idempotente?
+9. Precisa reservar budget?
+10. Precisa registrar Ledger?
+11. Precisa registrar Audit?
+12. Está em Shadow Mode?
+13. Existe risco de uma chamada de IA contornar uma regra?
+14. Existe forma mais simples e determinística de resolver sem LLM?
+15. A implementação está dentro do MVP?
+
+PRINCÍPIO CENTRAL:
+
+O AGENTE PROPÕE.
+A VOYTEK AUTORIZA.
+O EXECUTOR EXECUTA.
+O LEDGER REGISTRA.
+O OUTCOME MEDE.
+O AUDIT EXPLICA QUEM FEZ O QUÊ.
+
+FIM DO CONTEXTO.

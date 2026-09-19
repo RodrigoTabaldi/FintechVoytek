@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\apps\backend\src\Voytek.Api\Voytek.Api.csproj" />
+    <ProjectReference Include="..\..\..\apps\backend\src\Voytek.Application\Voytek.Application.csproj" />
+    <ProjectReference Include="..\..\..\apps\backend\src\Voytek.Domain\Voytek.Domain.csproj" />
+    <ProjectReference Include="..\..\..\apps\backend\src\Voytek.Infrastructure\Voytek.Infrastructure.csproj" />
+  </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsTestProject>true</IsTestProject>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Voytek.Application</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Voytek.Contracts\Voytek.Contracts.csproj" />
+    <ProjectReference Include="..\Voytek.Domain\Voytek.Domain.csproj" />
+    <ProjectReference Include="..\Voytek.SharedKernel\Voytek.SharedKernel.csproj" />
+  </ItemGroup>
+</Project>
