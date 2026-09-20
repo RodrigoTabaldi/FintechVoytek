@@ -80,7 +80,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ClockSkew = TimeSpan.FromMinutes(1)
     });
 builder.Services.AddAuthorization();
+builder.Services.AddCors(options => options.AddPolicy("frontend", policy => policy
+    .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+    .AllowAnyHeader()
+    .AllowAnyMethod()));
+builder.Services.AddHttpClient("agent-search", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(15);
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("Voytek/1.0 agent-search");
+});
 builder.Services.AddScoped<JwtTokenService>();
+builder.Services.AddScoped<AgentSearchService>();
 builder.Services.AddScoped<AuthorizationDecisionService>();
 builder.Services.Configure<LlmOptions>(builder.Configuration.GetSection(LlmOptions.SectionName));
 builder.Services.PostConfigure<LlmOptions>(options => options.ApiKey = builder.Configuration["OPENAI_API_KEY"]);
@@ -122,7 +132,28 @@ builder.Services.AddHealthChecks()
 
 var app = builder.Build();
 
+await using (var migrationScope = app.Services.CreateAsyncScope())
+{
+    var dbContext = migrationScope.ServiceProvider.GetRequiredService<VoytekDbContext>();
+    var connection = dbContext.Database.GetDbConnection();
+    await connection.OpenAsync();
+    await using var migrationLock = connection.CreateCommand();
+    migrationLock.CommandText = "SELECT pg_advisory_lock(741932);";
+    await migrationLock.ExecuteNonQueryAsync();
+    try
+    {
+        await dbContext.Database.MigrateAsync();
+    }
+    finally
+    {
+        migrationLock.CommandText = "SELECT pg_advisory_unlock(741932);";
+        await migrationLock.ExecuteNonQueryAsync();
+        await connection.CloseAsync();
+    }
+}
+
 app.UseForwardedHeaders();
+app.UseCors("frontend");
 app.Use(async (context, next) =>
 {
     var correlationId = context.Request.Headers["X-Correlation-ID"].FirstOrDefault() ?? Guid.NewGuid().ToString("N");
@@ -281,6 +312,8 @@ auth.MapPost("/select-tenant", async (
 
 var agents = app.MapGroup("/api/v1/agents")
     .RequireAuthorization(policy => policy.RequireClaim("tenant_id"));
+app.MapGet("/api/v1/agent-templates", () => Results.Ok(AgentSearchService.ListTemplates()))
+    .RequireAuthorization();
 var agentManagers = agents.MapGroup(string.Empty)
     .RequireAuthorization(policy => policy.RequireRole(
         MembershipRole.Owner.ToString(),
@@ -299,6 +332,30 @@ agents.MapGet("/{agentId:guid}", async (Guid agentId, VoytekDbContext dbContext)
 {
     var agent = await dbContext.Agents.SingleOrDefaultAsync(item => item.Id == agentId);
     return agent is null ? Results.NotFound() : Results.Ok(ToAgentResponse(agent));
+});
+
+agents.MapPost("/{agentId:guid}/run", async (
+    Guid agentId,
+    AgentRunRequest request,
+    VoytekDbContext dbContext,
+    AgentSearchService searchService,
+    CancellationToken cancellationToken) =>
+{
+    var agent = await dbContext.Agents.SingleOrDefaultAsync(item => item.Id == agentId, cancellationToken);
+    if (agent is null) return Results.NotFound();
+    if (agent.Status != AgentStatus.Active || agent.KillSwitchActivatedAtUtc is not null)
+    {
+        return Results.Conflict(new { message = "Only active agents without an enabled kill switch can run." });
+    }
+
+    try
+    {
+        return Results.Ok(await searchService.RunAsync(agent.Id, request, cancellationToken));
+    }
+    catch (ArgumentException exception)
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]> { ["templateId"] = [exception.Message] });
+    }
 });
 
 agentManagers.MapPost(string.Empty, async (
