@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <ProjectReference Include="..\..\..\apps\backend\src\Voytek.Application\Voytek.Application.csproj" />
     <ProjectReference Include="..\..\..\apps\backend\src\Voytek.Domain\Voytek.Domain.csproj" />
     <ProjectReference Include="..\..\..\apps\backend\src\Voytek.SharedKernel\Voytek.SharedKernel.csproj" />
