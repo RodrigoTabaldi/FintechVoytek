@@ -1,0 +1,3 @@
+using Voytek.Domain.Authorizations; using Voytek.Domain.Tenancy;
+namespace Voytek.Domain.ShadowMode;
+public sealed class ShadowAction : ITenantScoped { private ShadowAction(){} public ShadowAction(Guid id,Guid tenantId,Guid authorizationRequestId,AuthorizationDecision decision,DateTimeOffset now){Id=id;TenantId=tenantId;AuthorizationRequestId=authorizationRequestId;Decision=decision;CreatedAtUtc=now;} public Guid Id{get;private set;} public Guid TenantId{get;set;} public Guid AuthorizationRequestId{get;private set;} public AuthorizationDecision Decision{get;private set;} public DateTimeOffset CreatedAtUtc{get;private set;} }

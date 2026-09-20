@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet restore apps/backend/Voytek.sln
+      - run: dotnet build apps/backend/Voytek.sln --no-restore --configuration Release
+      - run: dotnet test apps/backend/Voytek.sln --no-restore --configuration Release
+      - run: dotnet tool install --tool-path .tools dotnet-ef --version 8.0.0
+      - run: ./.tools/dotnet-ef migrations has-pending-model-changes --project apps/backend/src/Voytek.Infrastructure/Voytek.Infrastructure.csproj --startup-project apps/backend/src/Voytek.Infrastructure/Voytek.Infrastructure.csproj
+        env:
+          ConnectionStrings__VoytekDatabase: Host=localhost;Database=voytek_ci;Username=voytek;Password=voytek
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose config --quiet
+        env:
+          Jwt__SigningKey: ci-only-secret-with-at-least-32-characters

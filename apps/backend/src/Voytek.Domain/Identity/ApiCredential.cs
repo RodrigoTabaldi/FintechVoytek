@@ -1,0 +1,3 @@
+using Voytek.Domain.Tenancy;
+namespace Voytek.Domain.Identity;
+public sealed class ApiCredential : ITenantScoped { private ApiCredential(){} public ApiCredential(Guid id,Guid tenantId,string name,string prefix,string secretHash,DateTimeOffset now){Id=id;TenantId=tenantId;Name=name;Prefix=prefix;SecretHash=secretHash;CreatedAtUtc=now;} public Guid Id{get;private set;} public Guid TenantId{get;set;} public string Name{get;private set;}=null!; public string Prefix{get;private set;}=null!; public string SecretHash{get;private set;}=null!; public DateTimeOffset CreatedAtUtc{get;private set;} public DateTimeOffset? RevokedAtUtc{get;private set;} public void Revoke(DateTimeOffset now)=>RevokedAtUtc=now; }

@@ -1,0 +1,6 @@
+.env
+.git
+**/bin
+**/obj
+apps/frontend/node_modules
+apps/frontend/dist
