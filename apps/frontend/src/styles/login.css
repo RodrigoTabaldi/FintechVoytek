@@ -1,0 +1,45 @@
+/* Split login. The left visual surface is intentionally image-ready. */
+.auth-shell { min-height:100vh; display:grid; place-items:center; padding:0; background:#050505; }.auth-layout { width:100vw; min-height:100vh; height:100vh; display:grid; grid-template-columns:1fr 1fr; overflow:hidden; border:0; border-radius:0; background:#050505; box-shadow:none; }.auth-visual { position:relative; min-height:0; padding:clamp(36px,5vw,82px); display:flex; flex-direction:column; overflow:hidden; border-right:1px solid rgba(255,255,255,.10); background:#171A20; }.auth-visual:before { content:""; position:absolute; inset:0; background:radial-gradient(circle at 50% 50%,rgba(76,102,255,.22),transparent 16rem),linear-gradient(138deg,transparent 40%,rgba(76,102,255,.10)); }.auth-visual-brand { display:none; }.auth-visual-placeholder { position:relative; z-index:1; width:min(340px,55%); aspect-ratio:1; margin:auto; display:grid; place-content:center; gap:12px; border:1px dashed rgba(255,255,255,.24); border-radius:50%; color:#FFFFFF; text-align:center; background:#050505; box-shadow:0 0 0 28px rgba(76,102,255,.10),0 0 0 56px rgba(76,102,255,.05); animation:auth-art-float 4.5s ease-in-out infinite; }.auth-visual-placeholder span { font-size:15px; font-weight:700; }.auth-visual-placeholder small { color:rgba(255,255,255,.54); font-size:11px; }.auth-card { width:min(560px,calc(100% - 96px)); margin:0; padding:0; justify-self:center; align-self:center; border:0; border-radius:0; background:#050505; box-shadow:none; transform:translateY(32px); }.auth-form-brand { display:grid; justify-items:center; margin-bottom:30px; }.auth-form-brand .brand { display:grid; justify-items:center; width:100%; }.auth-form-brand .brand img { width:235px; height:auto; image-rendering:auto; transform:translateZ(0); }.auth-card .eyebrow { margin-bottom:15px; color:rgba(255,255,255,.58); }.auth-card h1,.auth-card>.muted { display:none; }.google-button { width:100%; min-height:50px; display:flex; justify-content:center; align-items:center; gap:11px; border:1px solid rgba(255,255,255,.15); border-radius:13px; color:#FFFFFF; background:#050505; font-size:13px; font-weight:700; transition:border-color .2s ease,background .2s ease; }.google-button:hover { border-color:#4C66FF; background:#171A20; }.google-button span { display:grid; place-items:center; width:20px; height:20px; border-radius:50%; color:#050505; background:#FFFFFF; font-size:12px; font-weight:800; }.auth-divider { display:flex; align-items:center; gap:11px; margin:21px 0 0; color:rgba(255,255,255,.40); font-size:10px; }.auth-divider:before,.auth-divider:after { content:""; height:1px; flex:1; background:rgba(255,255,255,.12); }.auth-card .field { gap:7px; margin-top:15px; font-size:11px; }.auth-card .field input { min-height:45px; padding:10px 13px; border-radius:11px; font-size:12px; }.auth-submit { min-height:50px; margin-top:25px; }.auth-switch { font-size:12px; }.auth-terms { margin:24px 0 0; color:rgba(255,255,255,.40); font-size:10px; line-height:1.5; text-align:center; } @keyframes auth-art-float { 50% { transform:translateY(-12px); box-shadow:0 0 0 28px rgba(76,102,255,.14),0 0 0 56px rgba(76,102,255,.06); } }
+@media (max-width:720px) { .auth-shell { display:block; padding:0; }.auth-layout { width:100%; min-height:100vh; display:block; border:0; border-radius:0; }.auth-visual { display:none; }.auth-card { width:100%; min-height:100vh; padding:48px 24px 32px; transform:none; }.auth-form-brand { margin-bottom:40px; }.auth-form-brand .brand img { width:190px; }.auth-card h1 { font-size:28px; } }
+
+/* Institutional illustration supplied for the authentication surface. */
+.auth-visual { background:#050505 url('/brand/1.png?v=4') center center / contain no-repeat; animation:none; }.auth-visual:before { background:transparent; }.auth-visual-placeholder { display:none; }
+
+/* One continuous authentication canvas: illustration and form share the same image. */
+@media (min-width:721px) { .auth-layout { grid-template-columns:1fr 1fr; background:#050505 url('/brand/1.png?v=4') center center / contain no-repeat; }.auth-visual { min-height:0; padding:0; border:0; background:transparent; }.auth-visual:before { display:none; }.auth-card { grid-column:2; position:relative; z-index:1; justify-self:start; margin-left:-clamp(140px,15vw,320px); background:transparent; transform:translateY(32px); } }
+/* The motion is intentionally almost imperceptible: the single black canvas remains seamless. */
+@media (min-width:721px) { .auth-layout { animation:auth-bear-drift 5.5s ease-in-out infinite; }.auth-visual:after { content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse 16% 29% at 48% 57%,rgba(76,102,255,.16),transparent 72%); mix-blend-mode:screen; animation:auth-circuit-pulse 2.8s ease-in-out infinite; } }
+@keyframes auth-bear-drift { 0%,100% { background-position:50% 50%; background-size:contain; } 50% { background-position:50% 49.2%; background-size:101% auto; } }
+@keyframes auth-circuit-pulse { 0%,100% { opacity:.35; } 50% { opacity:1; } }
+@media (prefers-reduced-motion:reduce) { .auth-layout,.auth-visual,.auth-visual:after,.auth-mobile-bear { animation:none; } }
+
+/* Mobile keeps the complete auth flow and the bear inside one viewport. */
+@media (max-width:720px) {
+  .auth-shell { height:100dvh; min-height:100dvh; overflow:hidden; }
+  .auth-layout { position:relative; height:100dvh; min-height:100dvh; overflow:hidden; background:#050505 url('/brand/1.png?v=4') left 4% bottom 1.5% / 118% auto no-repeat; }
+  .auth-card { box-sizing:border-box; position:relative; z-index:1; width:100%; height:100dvh; min-height:0; padding:12px 24px 10px; background:transparent; transform:scale(.9); transform-origin:center center; }
+  .auth-form-brand { margin-bottom:14px; }
+  .auth-form-brand .brand img { width:150px; }
+  .auth-card .eyebrow { margin-bottom:8px; font-size:9px; }
+  .google-button { min-height:48px; font-size:13px; }
+  .auth-divider { margin-top:14px; font-size:10px; }
+  .auth-card .field { gap:5px; margin-top:10px; font-size:11px; }
+  .auth-card .field input { min-height:44px; padding:10px 12px; font-size:12px; }
+  .auth-submit { min-height:49px; margin-top:16px; font-size:13px; }
+  .auth-switch { margin-top:14px; font-size:12px; }
+  .auth-terms { margin-top:13px; font-size:9px; }
+}
+@media (max-width:720px) and (max-height:720px) { .auth-card { transform:scale(.8); } }
+
+/* Mobile uses a dedicated transparent, high-density bear instead of shrinking the desktop canvas. */
+.auth-mobile-bear { display:none; }
+@media (max-width:720px) {
+  .auth-layout { background:#050505; }
+  .auth-visual { display:none; }
+  .auth-mobile-bear { display:block; position:absolute; z-index:0; left:-6px; bottom:-6px; width:min(34vw,140px); max-height:24dvh; object-fit:contain; object-position:left bottom; image-rendering:auto; animation:auth-mobile-bear-breathe 5.5s ease-in-out infinite; }
+  .auth-card { z-index:1; }
+}
+@keyframes auth-mobile-bear-breathe { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-5px); } }
+
+/* Auth must not inherit the glass blur from the shared card styles. */
+.auth-card { backdrop-filter:none; -webkit-backdrop-filter:none; }
