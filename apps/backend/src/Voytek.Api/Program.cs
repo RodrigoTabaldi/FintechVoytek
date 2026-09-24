@@ -46,11 +46,6 @@ var connectionString = builder.Configuration.GetConnectionString("VoytekDatabase
 builder.Services.AddScoped<TenantContext>();
 builder.Services.AddScoped<ICurrentTenant>(serviceProvider => serviceProvider.GetRequiredService<TenantContext>());
 builder.Services.AddDbContext<VoytekDbContext>(options => options.UseNpgsql(connectionString));
-var redisConnection = builder.Configuration["Redis:Configuration"];
-if (!string.IsNullOrWhiteSpace(redisConnection))
-{
-    builder.Services.AddStackExchangeRedisCache(options => options.Configuration = redisConnection);
-}
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
 {
     options.User.RequireUniqueEmail = true;
@@ -65,6 +60,11 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 
 var jwtSigningKey = builder.Configuration["Jwt:SigningKey"]
     ?? throw new InvalidOperationException("Jwt:SigningKey must be configured.");
+if (Encoding.UTF8.GetByteCount(jwtSigningKey) < 32)
+{
+    throw new InvalidOperationException("Jwt:SigningKey must contain at least 32 UTF-8 bytes for HS256.");
+}
+
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "voytek";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "voytek-api";
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -84,13 +84,7 @@ builder.Services.AddCors(options => options.AddPolicy("frontend", policy => poli
     .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
     .AllowAnyHeader()
     .AllowAnyMethod()));
-builder.Services.AddHttpClient("agent-search", client =>
-{
-    client.Timeout = TimeSpan.FromSeconds(15);
-    client.DefaultRequestHeaders.UserAgent.ParseAdd("Voytek/1.0 agent-search");
-});
 builder.Services.AddScoped<JwtTokenService>();
-builder.Services.AddScoped<AgentSearchService>();
 builder.Services.AddScoped<AuthorizationDecisionService>();
 builder.Services.Configure<LlmOptions>(builder.Configuration.GetSection(LlmOptions.SectionName));
 builder.Services.PostConfigure<LlmOptions>(options => options.ApiKey = builder.Configuration["OPENAI_API_KEY"]);
@@ -179,6 +173,13 @@ app.Use(async (context, next) =>
         }
 
         context.RequestServices.GetRequiredService<TenantContext>().SetTenant(credential.TenantId);
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+        [
+            new Claim("tenant_id", credential.TenantId.ToString()),
+            new Claim(ClaimTypes.NameIdentifier, $"api-credential:{credential.Id}"),
+            new Claim("credential_id", credential.Id.ToString())
+        ],
+        "VoytekApiKey"));
     }
 
     var tenantIdClaim = context.User.FindFirstValue("tenant_id");
@@ -212,41 +213,66 @@ auth.MapPost("/register", async (
         return Results.ValidationProblem(errors);
     }
 
-    await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-    var user = new ApplicationUser
+    var organizationSlug = request.OrganizationSlug.Trim().ToLowerInvariant();
+    if (await dbContext.Tenants
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .AnyAsync(tenant => tenant.Slug == organizationSlug, cancellationToken))
     {
-        Id = Guid.NewGuid(),
-        UserName = request.Email.Trim(),
-        Email = request.Email.Trim()
-    };
-    var createUserResult = await userManager.CreateAsync(user, request.Password);
-    if (!createUserResult.Succeeded)
-    {
-        return Results.ValidationProblem(ToValidationErrors(createUserResult.Errors));
+        return OrganizationSlugConflict();
     }
 
-    var tenant = new Tenant(
-        Guid.NewGuid(),
-        request.OrganizationName,
-        request.OrganizationSlug,
-        DateTimeOffset.UtcNow);
-    dbContext.Tenants.Add(tenant);
-    tenantContext.SetTenant(tenant.Id);
-    dbContext.Memberships.Add(new Membership(
-        Guid.NewGuid(),
-        tenant.Id,
-        user.Id,
-        MembershipRole.Owner,
-        DateTimeOffset.UtcNow));
-    await dbContext.SaveChangesAsync(cancellationToken);
-    await transaction.CommitAsync(cancellationToken);
+    try
+    {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        var user = new ApplicationUser
+        {
+            Id = Guid.NewGuid(),
+            UserName = request.Email.Trim(),
+            Email = request.Email.Trim()
+        };
+        var createUserResult = await userManager.CreateAsync(user, request.Password);
+        if (!createUserResult.Succeeded)
+        {
+            return Results.ValidationProblem(ToValidationErrors(createUserResult.Errors));
+        }
 
-    return Results.Created(
-        $"/api/v1/tenants/{tenant.Id}",
-        new AuthenticationResponse(
-            tokenService.Create(user, tenant.Id, MembershipRole.Owner),
+        var tenant = new Tenant(
+            Guid.NewGuid(),
+            request.OrganizationName,
+            organizationSlug,
+            DateTimeOffset.UtcNow);
+        dbContext.Tenants.Add(tenant);
+        tenantContext.SetTenant(tenant.Id);
+        dbContext.Memberships.Add(new Membership(
+            Guid.NewGuid(),
+            tenant.Id,
             user.Id,
-            [new TenantMembershipResponse(tenant.Id, MembershipRole.Owner.ToString())]));
+            MembershipRole.Owner,
+            DateTimeOffset.UtcNow));
+        await dbContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+
+        return Results.Created(
+            $"/api/v1/tenants/{tenant.Id}",
+            new AuthenticationResponse(
+                tokenService.Create(user, tenant.Id, MembershipRole.Owner),
+                user.Id,
+                [new TenantMembershipResponse(tenant.Id, MembershipRole.Owner.ToString())]));
+    }
+    catch (DbUpdateException)
+    {
+        var slugWasClaimed = await dbContext.Tenants
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .AnyAsync(tenant => tenant.Slug == organizationSlug, cancellationToken);
+        if (slugWasClaimed)
+        {
+            return OrganizationSlugConflict();
+        }
+
+        throw;
+    }
 });
 
 auth.MapPost("/login", async (
@@ -312,8 +338,6 @@ auth.MapPost("/select-tenant", async (
 
 var agents = app.MapGroup("/api/v1/agents")
     .RequireAuthorization(policy => policy.RequireClaim("tenant_id"));
-app.MapGet("/api/v1/agent-templates", () => Results.Ok(AgentSearchService.ListTemplates()))
-    .RequireAuthorization();
 var agentManagers = agents.MapGroup(string.Empty)
     .RequireAuthorization(policy => policy.RequireRole(
         MembershipRole.Owner.ToString(),
@@ -334,50 +358,50 @@ agents.MapGet("/{agentId:guid}", async (Guid agentId, VoytekDbContext dbContext)
     return agent is null ? Results.NotFound() : Results.Ok(ToAgentResponse(agent));
 });
 
-agents.MapPost("/{agentId:guid}/run", async (
-    Guid agentId,
-    AgentRunRequest request,
-    VoytekDbContext dbContext,
-    AgentSearchService searchService,
-    CancellationToken cancellationToken) =>
-{
-    var agent = await dbContext.Agents.SingleOrDefaultAsync(item => item.Id == agentId, cancellationToken);
-    if (agent is null) return Results.NotFound();
-    if (agent.Status != AgentStatus.Active || agent.KillSwitchActivatedAtUtc is not null)
-    {
-        return Results.Conflict(new { message = "Only active agents without an enabled kill switch can run." });
-    }
-
-    try
-    {
-        return Results.Ok(await searchService.RunAsync(agent.Id, request, cancellationToken));
-    }
-    catch (ArgumentException exception)
-    {
-        return Results.ValidationProblem(new Dictionary<string, string[]> { ["templateId"] = [exception.Message] });
-    }
-});
-
 agentManagers.MapPost(string.Empty, async (
     CreateAgentRequest request,
     TenantContext tenantContext,
     VoytekDbContext dbContext,
     CancellationToken cancellationToken) =>
 {
-    if (!IsValidAgent(request.Name, request.Description, out var errors))
+    if (!IsValidAgent(
+            request.Name,
+            request.Description,
+            request.AutonomyLevel,
+            request.Specialization,
+            request.ObjectiveName,
+            request.ObjectiveDescription,
+            out var errors))
     {
         return Results.ValidationProblem(errors);
     }
 
     var now = DateTimeOffset.UtcNow;
+    var tenantId = tenantContext.TenantId!.Value;
+    Enum.TryParse<AgentSpecialization>(request.Specialization, true, out var specialization);
     var agent = new Agent(
         Guid.NewGuid(),
-        tenantContext.TenantId!.Value,
+        tenantId,
         request.Name,
         request.Description,
+        specialization,
         request.AutonomyLevel,
         now);
     dbContext.Agents.Add(agent);
+
+    if (!string.IsNullOrWhiteSpace(request.ObjectiveName))
+    {
+        dbContext.Objectives.Add(new Objective(
+            Guid.NewGuid(),
+            tenantId,
+            agent.Id,
+            request.ObjectiveName,
+            request.ObjectiveDescription,
+            DateOnly.FromDateTime(now.UtcDateTime),
+            null,
+            now));
+    }
+
     await dbContext.SaveChangesAsync(cancellationToken);
 
     return Results.Created($"/api/v1/agents/{agent.Id}", ToAgentResponse(agent));
@@ -389,7 +413,14 @@ agentManagers.MapPut("/{agentId:guid}", async (
     VoytekDbContext dbContext,
     CancellationToken cancellationToken) =>
 {
-    if (!IsValidAgent(request.Name, request.Description, out var errors))
+    if (!IsValidAgent(
+            request.Name,
+            request.Description,
+            request.AutonomyLevel,
+            null,
+            null,
+            null,
+            out var errors))
     {
         return Results.ValidationProblem(errors);
     }
@@ -644,9 +675,47 @@ policyManagers.MapPost("/{policyId:guid}/deactivate", async(Guid policyId,Voytek
 var authorizations = app.MapGroup("/api/v1/authorizations").RequireAuthorization(p => p.RequireClaim("tenant_id"));
 authorizations.MapPost(string.Empty, async (AuthorizationRequestDto request, AuthorizationDecisionService service, CancellationToken ct) =>
 {
-    if (string.IsNullOrWhiteSpace(request.ActionType) || string.IsNullOrWhiteSpace(request.Currency) || string.IsNullOrWhiteSpace(request.Purpose) || string.IsNullOrWhiteSpace(request.IdempotencyKey) || request.Amount <= 0) return Results.ValidationProblem(new Dictionary<string,string[]> { ["request"]=["Action type, currency, purpose, idempotency key and positive amount are required."] });
-    var result=await service.EvaluateAsync(new AuthorizationEvaluationInput(request.AgentId,request.ObjectiveId,request.BudgetId,request.ActionType,request.Amount,request.Currency,request.Purpose,request.IdempotencyKey,request.ShadowMode),ct);
-    return Results.Ok(new { result.Id, Decision=result.Decision.ToString(), result.DecisionReason, result.DecidedAtUtc });
+    var errors = new Dictionary<string, string[]>();
+    if (string.IsNullOrWhiteSpace(request.ActionType) || request.ActionType.Trim().Length > 100)
+        errors["actionType"] = ["Action type is required and cannot exceed 100 characters."];
+    if (request.Amount <= 0 || decimal.Round(request.Amount, 2) != request.Amount)
+        errors["amount"] = ["Amount must be positive with at most two decimal places."];
+    if (string.IsNullOrWhiteSpace(request.Currency) || request.Currency.Trim().Length != 3 || !request.Currency.Trim().All(char.IsAsciiLetter))
+        errors["currency"] = ["Currency must be a three-letter ISO code."];
+    if (string.IsNullOrWhiteSpace(request.Purpose) || request.Purpose.Trim().Length > 2_000)
+        errors["purpose"] = ["Purpose is required and cannot exceed 2,000 characters."];
+    if (string.IsNullOrWhiteSpace(request.IdempotencyKey) || request.IdempotencyKey.Trim().Length > 100)
+        errors["idempotencyKey"] = ["Idempotency key is required and cannot exceed 100 characters."];
+    if (errors.Count > 0)
+        return Results.ValidationProblem(errors);
+
+    try
+    {
+        var result = await service.EvaluateAsync(
+            new AuthorizationEvaluationInput(
+                request.AgentId,
+                request.ObjectiveId,
+                request.BudgetId,
+                request.ActionType,
+                request.Amount,
+                request.Currency,
+                request.Purpose,
+                request.IdempotencyKey,
+                request.ShadowMode),
+            ct);
+
+        return Results.Ok(new
+        {
+            result.Id,
+            Decision = result.Decision.ToString(),
+            result.DecisionReason,
+            result.DecidedAtUtc
+        });
+    }
+    catch (InvalidOperationException exception)
+    {
+        return Results.Conflict(new { message = exception.Message });
+    }
 });
 
 var approvals = app.MapGroup("/api/v1/approvals").RequireAuthorization(p => p.RequireClaim("tenant_id"));
@@ -718,6 +787,11 @@ static Dictionary<string, string[]> ToValidationErrors(IEnumerable<IdentityError
         .GroupBy(error => error.Code)
         .ToDictionary(group => group.Key, group => group.Select(error => error.Description).ToArray());
 
+static IResult OrganizationSlugConflict() => Results.Conflict(new
+{
+    message = "Este identificador de organização já está em uso. Escolha outro slug."
+});
+
 static void LoadLocalEnvironmentFile(ConfigurationManager configuration, string contentRoot)
 {
     for (var directory = new DirectoryInfo(contentRoot); directory is not null; directory = directory.Parent)
@@ -756,7 +830,14 @@ static void LoadLocalEnvironmentFile(ConfigurationManager configuration, string 
     }
 }
 
-static bool IsValidAgent(string name, string? description, out Dictionary<string, string[]> errors)
+static bool IsValidAgent(
+    string name,
+    string? description,
+    AutonomyLevel autonomyLevel,
+    string? specialization,
+    string? objectiveName,
+    string? objectiveDescription,
+    out Dictionary<string, string[]> errors)
 {
     errors = new Dictionary<string, string[]>();
     if (string.IsNullOrWhiteSpace(name) || name.Trim().Length > 150)
@@ -767,6 +848,33 @@ static bool IsValidAgent(string name, string? description, out Dictionary<string
     if (description?.Length > 2_000)
     {
         errors["description"] = ["Agent description cannot exceed 2,000 characters."];
+    }
+
+    if (!Enum.IsDefined(autonomyLevel))
+    {
+        errors["autonomyLevel"] = ["Choose a supported autonomy level."];
+    }
+
+    if (specialization is not null &&
+        (!Enum.TryParse<AgentSpecialization>(specialization, true, out var parsedSpecialization) ||
+         !Enum.IsDefined(parsedSpecialization)))
+    {
+        errors["specialization"] = ["Choose a supported agent specialization."];
+    }
+
+    if (!string.IsNullOrWhiteSpace(objectiveName) && objectiveName.Trim().Length > 200)
+    {
+        errors["objectiveName"] = ["Objective name cannot exceed 200 characters."];
+    }
+
+    if (string.IsNullOrWhiteSpace(objectiveName) && !string.IsNullOrWhiteSpace(objectiveDescription))
+    {
+        errors["objectiveName"] = ["An objective name is required when an objective description is provided."];
+    }
+
+    if (objectiveDescription?.Length > 4_000)
+    {
+        errors["objectiveDescription"] = ["Objective description cannot exceed 4,000 characters."];
     }
 
     return errors.Count == 0;
@@ -780,7 +888,8 @@ static AgentResponse ToAgentResponse(Agent agent) => new(
     agent.AutonomyLevel.ToString(),
     agent.CreatedAtUtc,
     agent.UpdatedAtUtc,
-    agent.KillSwitchActivatedAtUtc);
+    agent.KillSwitchActivatedAtUtc,
+    agent.Specialization.ToString());
 
 static async Task<IResult> ChangeAgentState(
     Guid agentId,
@@ -862,11 +971,11 @@ static async Task<IResult> ChangeObjectiveState(
     if (requireActiveAgent)
     {
         var agent = await dbContext.Agents.SingleOrDefaultAsync(item => item.Id == objective.AgentId, cancellationToken);
-        if (agent is null || agent.Status != AgentStatus.Active || agent.KillSwitchActivatedAtUtc is not null)
+        if (agent is null || agent.Status == AgentStatus.Disabled || agent.KillSwitchActivatedAtUtc is not null)
         {
             return Results.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["agent"] = ["An objective can only be activated for an active agent without an active kill switch."]
+                ["agent"] = ["An objective cannot be activated while the agent is disabled or its kill switch is active."]
             });
         }
     }

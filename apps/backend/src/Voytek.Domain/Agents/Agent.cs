@@ -13,13 +13,14 @@ public sealed class Agent : ITenantScoped
         Guid tenantId,
         string name,
         string? description,
+        AgentSpecialization specialization,
         AutonomyLevel autonomyLevel,
         DateTimeOffset createdAtUtc)
     {
         ArgumentOutOfRangeException.ThrowIfEqual(tenantId, Guid.Empty);
         Id = id;
         TenantId = tenantId;
-        SetDetails(name, description, autonomyLevel);
+        SetDetails(name, description, specialization, autonomyLevel);
         Status = AgentStatus.Draft;
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = createdAtUtc;
@@ -33,6 +34,8 @@ public sealed class Agent : ITenantScoped
 
     public string? Description { get; private set; }
 
+    public AgentSpecialization Specialization { get; private set; }
+
     public AgentStatus Status { get; private set; }
 
     public AutonomyLevel AutonomyLevel { get; private set; }
@@ -45,12 +48,17 @@ public sealed class Agent : ITenantScoped
 
     public void Update(string name, string? description, AutonomyLevel autonomyLevel, DateTimeOffset updatedAtUtc)
     {
-        SetDetails(name, description, autonomyLevel);
+        SetDetails(name, description, Specialization, autonomyLevel);
         UpdatedAtUtc = updatedAtUtc;
     }
 
     public void Activate(DateTimeOffset updatedAtUtc)
     {
+        if (Status == AgentStatus.Disabled)
+        {
+            throw new InvalidOperationException("A disabled agent cannot be activated.");
+        }
+
         if (KillSwitchActivatedAtUtc is not null)
         {
             throw new InvalidOperationException("Deactivate the kill switch before activating an agent.");
@@ -85,9 +93,23 @@ public sealed class Agent : ITenantScoped
         UpdatedAtUtc = updatedAtUtc;
     }
 
-    private void SetDetails(string name, string? description, AutonomyLevel autonomyLevel)
+    private void SetDetails(
+        string name,
+        string? description,
+        AgentSpecialization specialization,
+        AutonomyLevel autonomyLevel)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        if (!Enum.IsDefined(specialization))
+        {
+            throw new ArgumentOutOfRangeException(nameof(specialization));
+        }
+
+        if (!Enum.IsDefined(autonomyLevel))
+        {
+            throw new ArgumentOutOfRangeException(nameof(autonomyLevel));
+        }
+
         if (name.Trim().Length > 150)
         {
             throw new ArgumentOutOfRangeException(nameof(name), "Agent name cannot exceed 150 characters.");
@@ -100,6 +122,7 @@ public sealed class Agent : ITenantScoped
 
         Name = name.Trim();
         Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+        Specialization = specialization;
         AutonomyLevel = autonomyLevel;
     }
 }

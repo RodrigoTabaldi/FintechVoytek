@@ -1,0 +1,405 @@
+/* This visual system is scoped to authenticated screens. */
+body:has(.voytek-app) {
+  background: #050608;
+  min-width: 0;
+}
+.voytek-app {
+  --v-bg: #090b10;
+  --v-surface: #11151d;
+  --v-surface-raised: #181d28;
+  --v-line: #303846;
+  --v-text: #f2f6fc;
+  --v-muted: #a5b6d0;
+  --v-dim: #8295b1;
+  --v-blue: #1767f5;
+  width: 100%;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas: "sidebar header" "sidebar main";
+  overflow: hidden;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: #08090d;
+  box-shadow: none;
+  color: #f2f6fc;
+  font-family: 'League Spartan', sans-serif;
+}
+.voytek-icon-sidebar {
+  grid-area: sidebar;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+  padding: 22px 10px;
+  border-right: 1px solid #303947;
+  background: #0d0f15;
+}
+.voytek-icon-brand, .voytek-icon-nav-item, .voytek-icon-logout {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  color: #9fb6d4;
+}
+.voytek-icon-brand { background: transparent; border: 0; }
+.voytek-icon-brand img { width: 38px; height: 42px; object-fit: contain; }
+.voytek-icon-sidebar nav { width: 100%; display: grid; justify-items: center; align-content: start; gap: 11px; padding-top: 17px; border-top: 1px solid #626b7b44; }
+.voytek-icon-nav-item svg, .voytek-icon-logout svg { width: 20px; height: 20px; }
+.voytek-icon-nav-item:hover, .voytek-icon-logout:hover { background: #273346; color: #fff; }
+.voytek-icon-nav-item.is-active { border-color: #6ea2ff; background: linear-gradient(135deg, #3a86ff, #145de5); color: #fff; box-shadow: 0 6px 18px #1767f588; }
+.voytek-icon-logout { margin-top: auto; }
+.voytek-header {
+  grid-area: header;
+  min-width: 0;
+  border-bottom: 1px solid #303947;
+  background: #090b10;
+}
+.voytek-header-main {
+  min-height: 79px;
+  display: grid;
+  grid-template-columns: 155px minmax(220px, 450px) minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  padding: 12px 25px;
+}
+.voytek-header-title { min-width: 0; display: grid; gap: 3px; }
+.voytek-header-title strong { color: #fff; font-size: 25px; font-weight: 700; letter-spacing: .08em; line-height: 1; }
+.voytek-header-title span { color: #91a8c7; font-size: 12px; }
+.voytek-global-search { position: relative; min-width: 0; }
+.voytek-global-search label {
+  height: 37px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 11px;
+  border: 1px solid #3b4557;
+  border-radius: 7px;
+  background: #151922;
+  color: #9fb4d3;
+}
+.voytek-global-search label:focus-within { border-color: #76aaff; box-shadow: 0 0 0 3px #2275f333; }
+.voytek-global-search svg { width: 16px; height: 16px; flex: 0 0 16px; }
+.voytek-global-search input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: #f3f7ff; font-size: 13px; }
+.voytek-global-search input::placeholder { color: #91a5c1; }
+.voytek-global-search kbd { padding: 3px 5px; border: 1px solid #3b4555; border-radius: 4px; color: #98aac4; background: #232833; font-size: 9px; }
+.voytek-search-results { position: absolute; z-index: 12; top: 43px; left: 0; right: 0; display: grid; gap: 3px; padding: 7px; border: 1px solid #466a9c; border-radius: 9px; background: #14243a; box-shadow: 0 15px 35px #02091099; }
+.voytek-search-results button { display: flex; align-items: center; gap: 8px; padding: 9px; border-radius: 6px; background: transparent; text-align: left; font-size: 11px !important; }
+.voytek-search-results button:hover { background: #26446c; }
+.voytek-search-results span { padding: 9px; color: #a8bad4; font-size: 11px; }
+.voytek-header-actions { min-width: 0; display: flex; justify-content: flex-end; align-items: center; gap: 11px; }
+.voytek-api-status { display: inline-flex; align-items: center; gap: 6px; color: #b5c5db; font-size: 12px; white-space: nowrap; }
+.voytek-api-status i { width: 7px; height: 7px; border-radius: 50%; background: #e9bd68; }
+.voytek-api-status.is-online i { background: #49ca9c; }
+.voytek-api-status.is-offline i { background: #f27988; }
+.voytek-icon-action, .voytek-user-button {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #3c4658;
+  border-radius: 9px;
+  background: #1a1f29;
+  color: #d8e7ff;
+}
+.voytek-icon-action:hover, .voytek-user-button:hover { background: #29374d; }
+.voytek-icon-action:disabled { opacity: .5; cursor: wait; }
+.voytek-icon-action svg { width: 17px; height: 17px; }
+.voytek-user-button { border-radius: 50%; background: #1b64d0; font-size: 14px !important; font-weight: 700; }
+.voytek-account-menu { position: relative; }
+.voytek-account-popover { position: absolute; z-index: 15; top: 42px; right: 0; width: 250px; display: grid; gap: 11px; padding: 14px; border: 1px solid #41638f; border-radius: 10px; background: #152a45; box-shadow: 0 18px 45px #0008; }
+.voytek-account-popover strong { overflow-wrap: anywhere; font-size: 11px; }
+.voytek-account-popover button { padding: 9px; border-radius: 6px; background: #2a4b74; text-align: left; font-size: 11px !important; }
+.voytek-subnav { display: flex; gap: 8px; overflow-x: auto; padding: 0 25px 13px; scrollbar-width: none; }
+.voytek-subnav::-webkit-scrollbar { display: none; }
+.voytek-subnav-item { min-height: 36px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; border: 1px solid #3b4658; border-radius: 7px; color: #afc2dd; background: #171d28; font-size: 13px !important; white-space: nowrap; }
+.voytek-subnav-item svg { width: 14px; height: 14px; }
+.voytek-subnav-item small { color: #94b9ed; font-size: 11px; }
+.voytek-subnav-item:hover, .voytek-subnav-item.is-active { border-color: #6a9ef2; color: #fff; background: #1e4d8f; }
+.voytek-main { grid-area: main; min-width: 0; display: flex; flex-direction: column; background: transparent; }
+.voytek-content { width: 100%; max-width: none; flex: 1; padding: 25px; }
+.voytek-api-banner { padding: 12px 25px 0; }
+.voytek-api-banner .v-notice { margin-bottom: 0; }
+.voytek-footer { margin-top: auto; padding: 12px 25px; border-top: 1px solid #303947; color: #8398b7; font-size: 12px; }
+.voytek-app :is(button, input, textarea, select):focus-visible { outline: 2px solid #96c0ff; outline-offset: 3px; }
+
+/* Shared controls and content panels on all post-login pages. */
+.voytek-app .v-eyebrow { display: none; }
+.voytek-app .v-page { gap: 17px; }
+.voytek-app .v-page-heading { align-items: center; }
+.voytek-app .v-page-heading h1 { font: 600 clamp(36px, 3.5vw, 48px)/1.05 'League Spartan', sans-serif; }
+.voytek-app .v-page-heading .v-muted { font-size: 16px; }
+.voytek-app .v-panel, .voytek-app .v-home-activity { border-color: #384254; border-radius: 9px; background: #121720; }
+.voytek-app .v-panel { padding: clamp(16px, 2vw, 23px); }
+.voytek-app .v-panel-heading h2 { font: 600 23px/1.2 'League Spartan', sans-serif; }
+.voytek-app .v-panel-heading .v-muted { font-size: 15px; }
+.voytek-app .v-primary-button, .voytek-app .v-secondary-button { min-height: 42px; border-radius: 7px; font-size: 14px !important; }
+.voytek-app .v-primary-button { background: #1767f5; }
+.voytek-app .v-secondary-button { border-color: #465267; background: #202733; }
+.voytek-app .v-table th { color: #b3c7e3; font-size: 13px; }
+.voytek-app .v-table td { color: #e0eaf8; font-size: 14px; }
+.voytek-app .v-table td small.v-cell-detail { font-size: 12px; }
+.voytek-app .v-field { font-size: 14px; }
+.voytek-app .v-field > small { font-size: 12px; }
+.voytek-app .v-status { border-radius: 999px; font-size: 12px; }
+.voytek-app .v-metric > span { font-size: 14px; }
+.voytek-app .v-metric > strong { font: 600 28px/1.1 'League Spartan', sans-serif; }
+.voytek-app .v-metric > small { font-size: 12px; }
+.voytek-app .v-notice { font-size: 15px; }
+.voytek-app .v-empty-state h3 { font: 600 21px/1.2 'League Spartan', sans-serif; }
+.voytek-app .v-empty-state p { max-width: 560px; font-size: 15px; }
+.voytek-app .v-loading-line, .voytek-app .v-form-error { font-size: 14px; }
+.voytek-app .v-field input, .voytek-app .v-field textarea, .voytek-app .v-field select,
+.voytek-app .v-filter-row input, .voytek-app .v-filter-row select { min-height: 42px; font-size: 14px; }
+.voytek-app .v-modal-header h2 { font: 600 25px/1.15 'League Spartan', sans-serif; }
+.voytek-app .v-modal-header .v-muted { font-size: 14px; }
+.voytek-app .v-table-link, .voytek-app .v-text-button { font-size: 14px !important; }
+.voytek-app .v-row-actions button, .voytek-app .v-row-action-danger, .voytek-app .v-approve-button { font-size: 13px !important; }
+.voytek-app .v-agent-row-copy strong, .voytek-app .v-workflow-item strong,
+.voytek-app .v-next-steps button > span { font-size: 14px; }
+.voytek-app .v-agent-row-copy small, .voytek-app .v-workflow-item small,
+.voytek-app .v-next-steps small { font-size: 12px; }
+.voytek-app .v-summary-line { font-size: 14px; }
+.voytek-app .v-autonomy-picker legend, .voytek-app .v-autonomy-options strong { font-size: 13px; }
+.voytek-app .v-autonomy-options small { font-size: 11px; }
+.voytek-app .v-table-wrap { scrollbar-color: #4d6890 #18202b; scrollbar-width: thin; }
+.voytek-app .v-table-wrap::-webkit-scrollbar { height: 7px; }
+.voytek-app .v-table-wrap::-webkit-scrollbar-thumb { border-radius: 7px; background: #4d6890; }
+.voytek-app .v-table-wrap::-webkit-scrollbar-track { background: #18202b; }
+.voytek-app .v-detail-facts small, .voytek-app .v-approval-copy small,
+.voytek-app .v-budget-title small, .voytek-app .v-recommendation-list small { font-size: 12px; }
+.voytek-app .v-detail-facts strong, .voytek-app .v-approval-copy strong,
+.voytek-app .v-budget-title strong, .voytek-app .v-recommendation-list p { font-size: 14px; }
+.voytek-app .v-agent-detail section h3 { font: 600 17px/1.2 'League Spartan', sans-serif; }
+.voytek-app .v-agent-detail section p, .voytek-app .v-filter-row,
+.voytek-app .v-decision-result p, .voytek-app .v-settings-facts .v-panel > p,
+.voytek-app .v-roadmap-list { font-size: 14px; }
+.voytek-app .v-budget-values span, .voytek-app .v-decision-result > span,
+.voytek-app .v-voice-state .v-muted, .voytek-app .v-roadmap-footnote { font-size: 12px; }
+.voytek-app .v-budget-values strong, .voytek-app .v-voice-state strong { font-size: 14px; }
+.voytek-app .v-proposal-result > div, .voytek-app .v-proposal-result > div span,
+.voytek-app .v-decision-result small { font-size: 12px; }
+.voytek-app .v-permission-yes, .voytek-app .v-permission-no { font-size: 13px; }
+
+/* Home matches the second supplied reference: compact top three and lower two. */
+.v-dashboard { display: grid; gap: 18px; }
+.v-dashboard-mobile-tabs { display: none; }
+.v-dashboard-heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; }
+.v-dashboard-heading > div:first-child { display: grid; gap: 3px; }
+.v-dashboard-heading > div:first-child > span { color: #b1c5e2; font-size: 14px; }
+.v-dashboard-heading h1 { margin: 0; font: 600 clamp(34px, 3.3vw, 48px)/1.12 'League Spartan', sans-serif; letter-spacing: -.035em; }
+.v-dashboard-heading-actions { display: flex; align-items: center; gap: 9px; }
+.v-dashboard-approval-pill { min-height: 36px; display: inline-flex; align-items: center; gap: 8px; padding: 0 10px; border: 1px solid #404b5e; border-radius: 7px; background: #1a202b; color: #c8d9f0; font-size: 12px !important; white-space: nowrap; }
+.v-dashboard-approval-pill:hover { border-color: #85adf0; background: #214674; }
+.v-dashboard-approval-pill svg { width: 14px; height: 14px; }
+.v-dashboard-approval-pill strong { min-width: 19px; padding: 2px 5px; border-radius: 5px; background: #2768c0; color: #fff; text-align: center; }
+.v-dashboard-period { display: grid; gap: 3px; color: #96abc8; font-size: 11px; }
+.v-dashboard-period select { min-width: 133px; height: 35px; padding: 0 11px; border: 1px solid #465267; border-radius: 7px; background: #1a202b; color: #e7effa; font-size: 12px; }
+.v-dashboard-top { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, .94fr) minmax(235px, .75fr); gap: 12px; align-items: stretch; }
+.v-dashboard-bottom { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 12px; }
+.v-dashboard-card { min-width: 0; padding: 16px; border: 1px solid #3b4658; border-radius: 8px; background: linear-gradient(160deg, #171d28, #10151d 66%); box-shadow: inset 0 1px #ffffff0b; }
+.v-dashboard-card > header { min-width: 0; display: flex; align-items: center; gap: 9px; }
+.v-dashboard-card > header h2 { min-width: 0; flex: 1; margin: 0; font: 600 19px/1.25 'League Spartan', sans-serif; letter-spacing: -.015em; }
+.v-dashboard-card > header > button { width: 28px; height: 28px; border: 1px solid #416088; border-radius: 7px; color: #cce1ff; background: #1a3557; font-size: 15px !important; }
+.v-dashboard-card > header > button:hover { background: #2963b4; }
+.v-dashboard-card-icon { width: 31px; height: 31px; flex: 0 0 31px; display: grid; place-items: center; border: 1px solid #2d63ba; border-radius: 8px; background: #174582; color: #cce3ff; }
+.v-dashboard-card-icon svg { width: 17px; height: 17px; }
+.v-budget-card, .v-agent-states-card, .v-dashboard-agents { min-height: 256px; }
+.v-budget-card { display: flex; flex-direction: column; }
+.v-budget-amount { display: block; margin: 26px 0 18px; overflow-wrap: anywhere; font: 600 clamp(32px, 3.1vw, 48px)/1 'League Spartan', sans-serif; letter-spacing: -.04em; }
+.v-budget-currencies { margin: -7px 0 12px; color: #b9cdeb; font-size: 10px; }
+.v-budget-breakdown { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: auto; padding-top: 14px; border-top: 1px solid #3e495b; }
+.v-budget-breakdown > div { min-width: 0; display: grid; gap: 6px; padding: 0 8px; border-right: 1px solid #3a4556; }
+.v-budget-breakdown > div:first-child { padding-left: 0; }
+.v-budget-breakdown > div:last-child { padding-right: 0; border-right: 0; }
+.v-budget-breakdown small { color: #a9bddb; font-size: 12px; }
+.v-budget-breakdown strong { overflow-wrap: anywhere; font-size: 15px; }
+.v-budget-footnote { margin: 14px 0 0; color: #8da9cd; font-size: 11px; }
+.v-agent-states-card { display: flex; flex-direction: column; }
+.v-agent-state-grid { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; margin: 14px 0; }
+.v-agent-state-grid button { min-width: 0; min-height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; border-right: 1px solid #394456; background: transparent; }
+.v-agent-state-grid button:last-child { border-right: 0; }
+.v-agent-state-grid button:hover { background: #202c3c; }
+.v-agent-state-grid strong { font: 600 38px/1 'League Spartan', sans-serif; }
+.v-agent-state-grid span { color: #b7c9e1; font-size: 13px; }
+.v-agent-state-grid i { width: 8px; height: 8px; border-radius: 50%; background: #7186a4; }
+.v-agent-state-grid i.is-active { background: #3485ff; }
+.v-agent-state-grid i.is-draft { background: #a3bce0; }
+.v-agent-states-footnote { margin: auto 0 0; color: #8ca6c9; font-size: 11px; text-align: center; }
+.v-dashboard-agents { display: flex; flex-direction: column; gap: 6px; }
+.v-card-count { color: #9cb9e5; font-size: 11px; }
+.v-dashboard-agent-search { display: flex; align-items: center; gap: 7px; height: 30px; flex: 0 0 30px; padding: 0 8px; border: 1px solid #465267; border-radius: 6px; color: #91b7ec; background: #171d28; }
+.v-dashboard-agent-search svg { width: 15px; height: 15px; flex: 0 0 15px; }
+.v-dashboard-agent-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #f3f7fc; font-size: 10px; }
+.v-dashboard-agent-search input::placeholder { color: #95accb; }
+.v-dashboard-filters { display: flex; flex-wrap: wrap; gap: 4px; }
+.v-dashboard-filters button { min-height: 23px; padding: 0 7px; border-radius: 5px; background: #262f3e; color: #b2c5de; font-size: 9px !important; }
+.v-dashboard-filters button:hover, .v-dashboard-filters button.is-active { background: #1767f5; color: #fff; }
+.v-dashboard-create { min-height: 29px; flex: 0 0 29px; border: 1px solid #4790ff; border-radius: 6px; color: #fff; background: linear-gradient(90deg, #1565e8, #2d86ff); font-size: 10px !important; font-weight: 700; }
+.v-dashboard-create:hover { background: #438eff; }
+.v-dashboard-agent-empty { flex: 1; display: grid; justify-items: center; align-content: center; gap: 6px; min-height: 90px; text-align: center; }
+.v-dashboard-agent-empty svg { width: 23px; height: 23px; color: #79a8ee; }
+.v-dashboard-agent-empty strong { font-size: 10px; }
+.v-dashboard-agent-empty p { max-width: 210px; margin: 0; color: #95aac8; font-size: 9px; }
+.v-dashboard-agent-list { flex: 1; display: grid; align-content: start; gap: 6px; max-height: 155px; overflow-y: auto; }
+.v-dashboard-agent-row { min-width: 0; display: flex; align-items: center; gap: 7px; padding: 6px; border: 1px solid #3a4658; border-radius: 6px; background: #1d2532; text-align: left; }
+.v-dashboard-agent-row:hover { border-color: #77a7f0; background: #283b55; }
+.v-dashboard-agent-avatar { width: 26px; height: 26px; flex: 0 0 26px; display: grid; place-items: center; border-radius: 6px; background: #1f5bad; color: #e1efff; }
+.v-dashboard-agent-avatar svg { width: 14px; height: 14px; }
+.v-dashboard-agent-row > span:nth-child(2) { min-width: 0; flex: 1; display: grid; gap: 2px; }
+.v-dashboard-agent-row > span:nth-child(2) strong, .v-dashboard-agent-row > span:nth-child(2) small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v-dashboard-agent-row > span:nth-child(2) strong { font-size: 13px; }
+.v-dashboard-agent-row > span:nth-child(2) small { color: #a9bfda; font-size: 11px; }
+.v-dashboard-agent-row .v-status { max-width: 65px; overflow: hidden; font-size: 8px; white-space: nowrap; }
+.v-dashboard-all-agents { display: flex; justify-content: space-between; padding: 7px 0 0; border-top: 1px solid #3c4758; color: #bcd5f7; background: transparent; font-size: 9px !important; }
+.v-shadow-card, .v-activity-card { min-height: 260px; }
+.v-shadow-card { display: flex; flex-direction: column; }
+.v-shadow-stats { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; margin: 13px 0; }
+.v-shadow-stats > div { min-width: 0; display: grid; justify-items: center; gap: 8px; padding: 7px; border-right: 1px solid #3c4758; }
+.v-shadow-stats > div:last-child { border-right: 0; }
+.v-shadow-stats strong { font: 600 38px/1 'League Spartan', sans-serif; }
+.v-shadow-stats span { color: #b5c9e1; font-size: 13px; }
+.v-shadow-stats i { width: min(90px, 80%); height: 6px; border-radius: 99px; background: linear-gradient(90deg, #225cc2, #6aa9ff); }
+.v-dashboard-info { margin: auto 0 0; padding: 10px; border: 1px solid #384d6b; border-radius: 7px; color: #a8c1e1; background: #182335; font-size: 11px; line-height: 1.45; }
+.v-activity-card { display: flex; flex-direction: column; }
+.v-activity-card header .v-activity-all { width: auto; min-height: 27px; padding: 0 8px; font-size: 9px !important; white-space: nowrap; }
+.v-dashboard-activity-empty { flex: 1; display: grid; justify-items: center; align-content: center; gap: 6px; text-align: center; }
+.v-dashboard-activity-empty svg { width: 29px; height: 29px; color: #93b5e9; }
+.v-dashboard-activity-empty strong { font-size: 14px; }
+.v-dashboard-activity-empty p { margin: 0; color: #93abc9; font-size: 12px; }
+.v-dashboard-activity-list { display: grid; align-content: start; margin-top: 9px; }
+.v-dashboard-activity-row { min-width: 0; display: grid; grid-template-columns: 26px minmax(0, 1fr) auto auto; align-items: center; gap: 9px; padding: 8px 0; border-bottom: 1px solid #2e4664; }
+.v-dashboard-activity-row:last-child { border-bottom: 0; }
+.v-activity-icon { width: 25px; height: 25px; display: grid; place-items: center; border-radius: 6px; background: #244776; color: #c7e0ff; }
+.v-activity-icon svg { width: 14px; height: 14px; }
+.v-dashboard-activity-row > span:nth-child(2) { min-width: 0; display: grid; gap: 2px; }
+.v-dashboard-activity-row > span:nth-child(2) strong, .v-dashboard-activity-row > span:nth-child(2) small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v-dashboard-activity-row > span:nth-child(2) strong { font-size: 10px; }
+.v-dashboard-activity-row > span:nth-child(2) small, .v-dashboard-activity-row time { color: #a1b9d7; font-size: 9px; }
+.v-dashboard-activity-row > strong { font-size: 10px; text-align: right; }
+
+@media (max-width: 1180px) {
+  .voytek-app { width: 100%; }
+  .voytek-header-main { grid-template-columns: 120px minmax(190px, 1fr) auto; padding-inline: 18px; }
+  .voytek-api-status span { display: none; }
+  .voytek-content { padding: 18px; }
+  .v-dashboard-top { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .v-dashboard-agents { grid-column: 1 / -1; min-height: 0; }
+  .v-dashboard-agent-list { max-height: 220px; }
+}
+@media (max-width: 760px) {
+  .voytek-app { width: 100%; min-height: 100vh; margin: 0; border: 0; border-radius: 0; grid-template-columns: 57px minmax(0, 1fr); }
+  .voytek-icon-sidebar { padding: 12px 5px; gap: 18px; }
+  .voytek-icon-brand, .voytek-icon-nav-item, .voytek-icon-logout { width: 39px; height: 39px; }
+  .voytek-icon-sidebar nav { gap: 8px; }
+  .voytek-header-main { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 12px; }
+  .voytek-header-title strong { font-size: 22px; }
+  .voytek-global-search { grid-column: 1 / -1; grid-row: 2; }
+  .voytek-header-actions { grid-column: 2; grid-row: 1; }
+  .voytek-subnav { padding: 0 12px 10px; }
+  .voytek-content { padding: 14px 12px 22px; }
+  .voytek-api-banner { padding: 10px 12px 0; }
+  .voytek-footer { padding: 10px 12px; }
+  .v-dashboard-heading { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .v-dashboard-heading-actions { width: 100%; min-width: 0; justify-content: space-between; }
+  .v-dashboard-approval-pill, .v-dashboard-period { min-width: 0; flex: 1; }
+  .v-dashboard-period select { width: 100%; min-width: 0; }
+  .v-dashboard-heading h1 { font-size: 34px; }
+  .v-dashboard-top, .v-dashboard-bottom { grid-template-columns: 1fr; }
+  .v-dashboard-agents { grid-column: auto; }
+  .v-budget-card, .v-agent-states-card, .v-dashboard-agents, .v-shadow-card, .v-activity-card { min-height: 225px; }
+  .v-dashboard-approval-pill { white-space: normal; }
+}
+@media (max-width: 420px) {
+  .voytek-app { grid-template-columns: 48px minmax(0, 1fr); }
+  .voytek-icon-brand, .voytek-icon-nav-item, .voytek-icon-logout { width: 34px; height: 34px; }
+  .voytek-icon-nav-item svg { width: 17px; height: 17px; }
+  .voytek-content { padding-inline: 9px; }
+  .v-dashboard-card { padding: 12px; }
+  .v-budget-breakdown { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 0; }
+  .v-budget-breakdown > div:nth-child(2) { border-right: 0; }
+  .v-budget-breakdown > div:nth-child(3) { padding-left: 0; }
+  .v-dashboard-activity-row { grid-template-columns: 25px minmax(0, 1fr) auto; }
+  .v-dashboard-activity-row time { display: none; }
+  .voytek-app .v-metric-row { grid-template-columns: minmax(0, 1fr); }
+  .voytek-app .v-metric { min-height: 78px; border-right: 0; border-bottom: 1px solid var(--v-line); }
+  .voytek-app .v-metric:last-child { border-bottom: 0; }
+  .voytek-app .v-metric > strong { overflow: visible; overflow-wrap: anywhere; text-overflow: clip; white-space: normal; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .voytek-app *, .voytek-app *::before, .voytek-app *::after { scroll-behavior: auto; transition-duration: 0s !important; animation-duration: 0s !important; }
+}
+
+/* The Home fills exactly one viewport; longer datasets scroll inside their panel. */
+.voytek-app:has(.v-dashboard) {
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.voytek-app:has(.v-dashboard) .voytek-main,
+.voytek-app:has(.v-dashboard) .voytek-content,
+.voytek-app:has(.v-dashboard) .v-dashboard-top,
+.voytek-app:has(.v-dashboard) .v-dashboard-bottom { min-height: 0; }
+.voytek-app:has(.v-dashboard) .voytek-content { overflow: hidden; }
+.voytek-app:has(.v-dashboard) .voytek-footer { display: none; }
+.voytek-app:has(.v-dashboard) .v-dashboard {
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1.12fr) minmax(0, .88fr);
+}
+.voytek-app:has(.v-dashboard) .v-dashboard-card { min-height: 0; overflow: hidden; }
+.voytek-app:has(.v-dashboard) .v-dashboard-agent-list { min-height: 0; max-height: none; overflow-y: auto; }
+.voytek-app:has(.v-dashboard) .v-activity-card .v-dashboard-activity-list { min-height: 0; overflow-y: auto; }
+
+@media (max-height: 760px) and (min-width: 761px) {
+  .voytek-app:has(.v-dashboard) .voytek-content { padding-block: 16px; }
+  .voytek-app:has(.v-dashboard) .v-dashboard { gap: 11px; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-card { padding: 12px; }
+  .voytek-app:has(.v-dashboard) .v-budget-amount { margin: 14px 0 11px; font-size: 34px; }
+  .voytek-app:has(.v-dashboard) .v-shadow-stats { margin: 4px 0; }
+  .voytek-app:has(.v-dashboard) .v-agent-state-grid { margin: 5px 0; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-info { padding: 7px; }
+}
+@media (max-width: 760px) {
+  .voytek-app:has(.v-dashboard) { width: 100%; height: 100dvh; min-height: 0; margin: 0; }
+  .voytek-app:has(.v-dashboard) .voytek-main { overflow: hidden; }
+  .voytek-app:has(.v-dashboard) .voytek-content { display: flex; padding: 11px; }
+  .voytek-app:has(.v-dashboard) .v-dashboard {
+    width: 100%;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 11px;
+  }
+  .v-dashboard-mobile-tabs { min-width: 0; display: flex; gap: 4px; overflow-x: auto; padding: 3px 0; scrollbar-width: none; }
+  .v-dashboard-mobile-tabs::-webkit-scrollbar { display: none; }
+  .v-dashboard-mobile-tabs button { min-height: 31px; flex: 0 0 auto; padding: 0 8px; border: 1px solid #414e62; border-radius: 6px; background: #1b222d; color: #b9cae3; font-size: 12px !important; }
+  .v-dashboard-mobile-tabs button.is-active { border-color: #4f8fff; background: #175fd4; color: #fff; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-top,
+  .voytek-app:has(.v-dashboard) .v-dashboard-bottom { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+  .voytek-app:has(.v-dashboard) .v-dashboard-card { height: 100%; min-height: 0; }
+  .voytek-app:has(.v-dashboard) .v-budget-amount { margin: auto 0; }
+  .voytek-app:has(.v-dashboard) .v-budget-breakdown { margin-top: 0; }
+  .v-dashboard[data-mobile-view="budget"] .v-agent-states-card,
+  .v-dashboard[data-mobile-view="budget"] .v-dashboard-agents,
+  .v-dashboard[data-mobile-view="budget"] .v-dashboard-bottom,
+  .v-dashboard[data-mobile-view="states"] .v-budget-card,
+  .v-dashboard[data-mobile-view="states"] .v-dashboard-agents,
+  .v-dashboard[data-mobile-view="states"] .v-dashboard-bottom,
+  .v-dashboard[data-mobile-view="agents"] .v-budget-card,
+  .v-dashboard[data-mobile-view="agents"] .v-agent-states-card,
+  .v-dashboard[data-mobile-view="agents"] .v-dashboard-bottom,
+  .v-dashboard[data-mobile-view="shadow"] .v-dashboard-top,
+  .v-dashboard[data-mobile-view="shadow"] .v-activity-card,
+  .v-dashboard[data-mobile-view="activity"] .v-dashboard-top,
+  .v-dashboard[data-mobile-view="activity"] .v-shadow-card { display: none !important; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-agent-list { flex: 1; max-height: none; }
+}
