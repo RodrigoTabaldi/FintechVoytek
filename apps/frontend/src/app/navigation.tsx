@@ -32,8 +32,8 @@ type NavigationItem = { id: PageId; label: string; icon: IconName; planned?: boo
 type NavigationGroup = { label: string; items: NavigationItem[] }
 
 const navigation: NavigationGroup[] = [
-  { label: 'Visão geral', items: [{ id: 'overview', label: 'Visão geral', icon: 'home' }] },
-  { label: 'Agentes', items: [
+  { label: 'Painel', items: [{ id: 'overview', label: 'Visão geral', icon: 'home' }] },
+  { label: 'Operação', items: [
     { id: 'agents', label: 'Agentes', icon: 'agent' },
     { id: 'objectives', label: 'Objetivos', icon: 'target' },
     { id: 'automation', label: 'Automações', icon: 'automation' },
@@ -87,8 +87,6 @@ export default function HeaderNavigation({ activePage, onNavigate, onLogout, ema
     window.addEventListener('keydown', focusSearch)
     return () => window.removeEventListener('keydown', focusSearch)
   }, [])
-  const activeGroup = navigation.find(group => group.items.some(item => item.id === activePage)) ?? navigation[0]
-  const items = activeGroup.items.filter(item => item.id !== 'credentials' || canAdmin)
   const searchResults = searchQuery.trim()
     ? navigation.flatMap(group => group.items).filter(item => (item.id !== 'credentials' || canAdmin) && item.label.toLocaleLowerCase('pt-BR').includes(searchQuery.trim().toLocaleLowerCase('pt-BR'))).slice(0, 6)
     : []
@@ -98,20 +96,21 @@ export default function HeaderNavigation({ activePage, onNavigate, onLogout, ema
   }
 
   return <>
-    <aside className="voytek-icon-sidebar">
-      <button className="voytek-icon-brand" aria-label="Ir para visão geral" onClick={() => navigateTo('overview')} type="button"><img src="/brand/voytek-mark.png" alt="Voytek" /></button>
-      <nav aria-label="Áreas do painel">
-        {navigation.map(group => <button
-          aria-current={activeGroup === group ? 'page' : undefined}
-          className={'voytek-icon-nav-item' + (activeGroup === group ? ' is-active' : '')}
-          key={group.label}
-          onClick={() => navigateTo(group.items[0].id)}
-          title={group.label}
-          aria-label={group.label}
-          type="button"
-        ><Icon name={group.items[0].icon} /></button>)}
+    <aside className="voytek-icon-sidebar is-home-sidebar">
+      <button className="voytek-home-brand" aria-label="Ir para visão geral" onClick={() => navigateTo('overview')} type="button"><img src="/brand/voytek-logo.png" alt="Voytek" /></button>
+      <nav className="voytek-home-navigation" aria-label="Navegação principal">
+        {navigation.map(group => <div className="voytek-home-nav-group" key={group.label}>
+          <span className="voytek-home-nav-caption">{group.label}</span>
+          {group.items.filter(item => item.id !== 'credentials' || canAdmin).map(item => <button
+            aria-current={activePage === item.id ? 'page' : undefined}
+            className={'voytek-home-nav-item' + (activePage === item.id ? ' is-active' : '')}
+            key={item.id}
+            onClick={() => navigateTo(item.id)}
+            type="button"
+          ><Icon name={item.icon} /><span>{item.label}</span>{item.planned && <small>Planejado</small>}</button>)}
+        </div>)}
       </nav>
-      <button className="voytek-icon-logout" aria-label="Sair da conta" title="Sair da conta" onClick={onLogout} type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4m7-4 4-4-4-4m4 4H9" /></svg></button>
+      <button className="voytek-home-logout" onClick={onLogout} type="button">Sair da conta</button>
     </aside>
     <header className="voytek-header">
     <div className="voytek-header-main">
@@ -131,9 +130,6 @@ export default function HeaderNavigation({ activePage, onNavigate, onLogout, ema
         </div>
       </div>
     </div>
-    {items.length > 1 && <nav className="voytek-subnav" aria-label={'Telas de ' + activeGroup.label}>
-      {items.map(item => <button aria-current={activePage === item.id ? 'page' : undefined} className={'voytek-subnav-item' + (activePage === item.id ? ' is-active' : '')} key={item.id} onClick={() => navigateTo(item.id)} type="button"><Icon name={item.icon} />{item.label}{item.planned && <small>Planejado</small>}</button>)}
-    </nav>}
   </header>
   </>
 }

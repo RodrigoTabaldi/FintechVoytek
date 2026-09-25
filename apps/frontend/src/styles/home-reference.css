@@ -1,0 +1,213 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* The Home follows the supplied dashboard composition and Voytek palette. */
+.voytek-app:has(.v-dashboard) {
+  --v-bg: #050505;
+  --v-surface: #171a20;
+  --v-surface-raised: #171a20;
+  --v-line: rgba(255, 255, 255, .1);
+  --v-text: #fff;
+  --v-muted: rgba(255, 255, 255, .68);
+  --v-dim: rgba(255, 255, 255, .48);
+  --v-blue: #4c66ff;
+  width: 100%;
+  min-height: 100dvh;
+  height: auto;
+  grid-template-columns: 220px minmax(0, 1fr);
+  background: #050505;
+  color: #fff;
+  font-family: Inter, system-ui, sans-serif;
+}
+.voytek-app:has(.v-dashboard) .is-home-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  min-height: 0;
+  align-items: stretch;
+  gap: 0;
+  padding: 27px 17px 20px;
+  border-color: rgba(255, 255, 255, .1);
+  background: #050505;
+}
+.is-home-sidebar > .voytek-icon-brand,
+.is-home-sidebar > nav:not(.voytek-home-navigation),
+.is-home-sidebar > .voytek-icon-logout { display: none; }
+.voytek-home-brand { width: 100%; height: 67px; display: flex; align-items: flex-start; padding: 3px 7px; background: transparent; text-align: left; }
+.voytek-home-brand img { width: 139px; max-height: 37px; object-fit: contain; object-position: left center; }
+.voytek-app:has(.v-dashboard) .voytek-home-navigation { display: flex; flex: 1; flex-direction: column; align-items: stretch; gap: 4px; overflow-y: auto; padding: 0; border: 0; }
+.voytek-home-nav-group { display: grid; gap: 4px; }
+.voytek-home-nav-group + .voytek-home-nav-group { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.1); }
+.voytek-home-nav-caption { margin: 9px 10px 8px; color: rgba(255,255,255,.46); font-size: 11px; font-weight: 500; }
+.voytek-home-nav-caption.is-secondary { margin-top: 28px; padding-top: 23px; border-top: 1px solid rgba(255,255,255,.1); }
+.voytek-home-nav-item { width: 100%; min-height: 42px; display: flex; align-items: center; gap: 12px; padding: 0 12px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: rgba(255,255,255,.63); text-align: left; font-size: 13px !important; transition: background .2s ease, color .2s ease, transform .2s ease; }
+.voytek-home-nav-item svg { width: 18px; height: 18px; flex: 0 0 18px; }
+.voytek-home-nav-item span { min-width: 0; flex: 1; }
+.voytek-home-nav-item small { color: rgba(255,255,255,.45); font-size: 9px; }
+.voytek-home-nav-item:hover { transform: translateX(2px); background: #171a20; color: #fff; }
+.voytek-home-nav-item.is-active { background: #4c66ff; color: #fff; }
+.voytek-home-logout { align-self: stretch; margin-top: 16px; padding: 12px; border-top: 1px solid rgba(255,255,255,.1); background: transparent; color: rgba(255,255,255,.6); text-align: left; font-size: 12px !important; }
+.voytek-home-logout:hover { color: #fff; }
+.voytek-app:has(.v-dashboard) .voytek-header { border-color: rgba(255,255,255,.1); background: #050505; }
+.voytek-app:has(.v-dashboard) .voytek-header-main { min-height: 72px; grid-template-columns: minmax(0, 1fr) minmax(180px, 280px) auto; padding: 13px clamp(18px, 3vw, 42px); }
+.voytek-app:has(.v-dashboard) .voytek-header-title { display: none; }
+.voytek-app:has(.v-dashboard) .voytek-global-search { grid-column: 2; }
+.voytek-app:has(.v-dashboard) .voytek-header-actions { grid-column: 3; }
+.voytek-app:has(.v-dashboard) .voytek-header-title strong { font: 700 17px/1 Inter, system-ui, sans-serif; letter-spacing: .02em; }
+.voytek-app:has(.v-dashboard) .voytek-header-title span { color: rgba(255,255,255,.46); font: 400 11px/1.3 Inter, system-ui, sans-serif; }
+.voytek-app:has(.v-dashboard) .voytek-global-search label { border-color: rgba(255,255,255,.1); border-radius: 10px; background: #171a20; color: rgba(255,255,255,.57); }
+.voytek-app:has(.v-dashboard) .voytek-global-search label:focus-within { border-color: #4c66ff; box-shadow: 0 0 0 3px rgba(76,102,255,.2); }
+.voytek-app:has(.v-dashboard) .voytek-global-search input { color: #fff; }
+.voytek-app:has(.v-dashboard) .voytek-global-search input::placeholder { color: rgba(255,255,255,.46); }
+.voytek-app:has(.v-dashboard) .voytek-global-search kbd { border-color: rgba(255,255,255,.12); background: #050505; color: rgba(255,255,255,.58); }
+.voytek-app:has(.v-dashboard) .voytek-search-results,
+.voytek-app:has(.v-dashboard) .voytek-account-popover { border-color: rgba(255,255,255,.16); background: #171a20; }
+.voytek-app:has(.v-dashboard) .voytek-search-results button:hover,
+.voytek-app:has(.v-dashboard) .voytek-account-popover button:hover { background: rgba(76,102,255,.25); }
+.voytek-app:has(.v-dashboard) .voytek-api-status { color: rgba(255,255,255,.56); font-size: 11px; }
+.voytek-app:has(.v-dashboard) .voytek-api-status i,
+.voytek-app:has(.v-dashboard) .voytek-api-status.is-offline i { background: rgba(255,255,255,.5); }
+.voytek-app:has(.v-dashboard) .voytek-api-status.is-online i { background: #4c66ff; }
+.voytek-app:has(.v-dashboard) .voytek-icon-action,
+.voytek-app:has(.v-dashboard) .voytek-user-button { border-color: rgba(255,255,255,.1); border-radius: 50%; background: #171a20; color: #fff; }
+.voytek-app:has(.v-dashboard) .voytek-user-button { background: #4c66ff; }
+.voytek-app:has(.v-dashboard) .voytek-main { overflow: visible; background: #050505; }
+.voytek-app:has(.v-dashboard) .voytek-content { display: block; max-width: 1520px; overflow: visible; padding: clamp(24px, 3vw, 44px); }
+.voytek-app:has(.v-dashboard) .voytek-api-banner { padding-inline: clamp(24px, 3vw, 44px); }
+.voytek-app:has(.v-dashboard) .v-notice,
+.voytek-app:has(.v-dashboard) .v-notice.is-warning,
+.voytek-app:has(.v-dashboard) .v-notice.is-error,
+.voytek-app:has(.v-dashboard) .v-notice.is-success { border-color: rgba(76,102,255,.35); border-radius: 9px; background: rgba(76,102,255,.09); color: rgba(255,255,255,.8); }
+.voytek-app:has(.v-dashboard) .v-notice code { color: #fff; }
+.voytek-app:has(.v-dashboard) .v-status,
+.voytek-app:has(.v-dashboard) .v-status.is-positive,
+.voytek-app:has(.v-dashboard) .v-status.is-negative { border-color: rgba(76,102,255,.45); background: rgba(76,102,255,.14); color: #fff; }
+.voytek-app:has(.v-dashboard) .v-dashboard { height: auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(260px, .72fr); grid-template-rows: auto; gap: 18px 22px; }
+.voytek-app:has(.v-dashboard) .v-dashboard-heading { grid-column: 1 / -1; align-items: center; padding-bottom: 10px; }
+.voytek-app:has(.v-dashboard) .v-dashboard-heading > div:first-child > span { color: rgba(255,255,255,.65); font-size: 15px; }
+.voytek-app:has(.v-dashboard) .v-dashboard-heading h1 { margin-top: 8px; font: 700 clamp(30px, 3vw, 42px)/1.1 Inter, system-ui, sans-serif; letter-spacing: -.045em; }
+.voytek-app:has(.v-dashboard) .v-dashboard-heading-actions { gap: 11px; }
+.voytek-app:has(.v-dashboard) .v-dashboard-approval-pill,
+.voytek-app:has(.v-dashboard) .v-dashboard-period select { min-height: 38px; border-color: rgba(255,255,255,.13); border-radius: 9px; background: #171a20; color: #fff; font-size: 12px !important; }
+.voytek-app:has(.v-dashboard) .v-dashboard-approval-pill:hover,
+.voytek-app:has(.v-dashboard) .v-dashboard-period select:hover { border-color: #4c66ff; }
+.voytek-app:has(.v-dashboard) .v-dashboard-approval-pill strong { background: #4c66ff; }
+.voytek-app:has(.v-dashboard) .v-dashboard-period { color: rgba(255,255,255,.55); }
+.voytek-app:has(.v-dashboard) .v-dashboard-top,
+.voytek-app:has(.v-dashboard) .v-dashboard-bottom { display: contents; }
+.voytek-app:has(.v-dashboard) .v-dashboard-card { min-width: 0; min-height: 0; height: auto; overflow: visible; padding: 23px; border: 1px solid rgba(255,255,255,.1); border-radius: 22px; background: #171a20; box-shadow: 0 15px 40px rgba(0,0,0,.16); animation: home-rise .45s ease both; transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease; }
+.voytek-app:has(.v-dashboard) .v-dashboard-card:hover { border-color: rgba(76,102,255,.45); box-shadow: 0 18px 45px rgba(0,0,0,.28); }
+.voytek-app:has(.v-dashboard) .v-dashboard-card > header h2 { font: 600 16px/1.3 Inter, system-ui, sans-serif; letter-spacing: -.01em; }
+.voytek-app:has(.v-dashboard) .v-dashboard-card-icon { width: 34px; height: 34px; flex-basis: 34px; border: 0; border-radius: 9px; background: rgba(76,102,255,.18); color: #fff; }
+.voytek-app:has(.v-dashboard) .v-dashboard-card > header > button { width: 30px; height: 30px; border-color: rgba(255,255,255,.12); border-radius: 8px; background: #171a20; color: #fff; }
+.voytek-app:has(.v-dashboard) .v-dashboard-card > header > button:hover { border-color: #4c66ff; background: #4c66ff; }
+.voytek-app:has(.v-dashboard) .v-budget-card { grid-column: 1; grid-row: 2; min-height: 260px; background: linear-gradient(125deg, rgba(76,102,255,.13), transparent 45%), #171a20; }
+.voytek-app:has(.v-dashboard) .v-budget-amount { margin: 35px 0 24px; font: 700 clamp(32px, 3.5vw, 49px)/1.05 Inter, system-ui, sans-serif; letter-spacing: -.055em; }
+.voytek-app:has(.v-dashboard) .v-budget-breakdown { border-color: rgba(255,255,255,.12); }
+.voytek-app:has(.v-dashboard) .v-budget-breakdown > div { border-color: rgba(255,255,255,.1); }
+.voytek-app:has(.v-dashboard) .v-budget-breakdown small,
+.voytek-app:has(.v-dashboard) .v-budget-footnote { color: rgba(255,255,255,.55); }
+.voytek-app:has(.v-dashboard) .v-budget-breakdown strong { font-size: 13px; }
+.voytek-app:has(.v-dashboard) .v-budget-currencies { color: rgba(255,255,255,.7); }
+.voytek-app:has(.v-dashboard) .v-agent-states-card { grid-column: 1; grid-row: 3; min-height: 175px; }
+.voytek-app:has(.v-dashboard) .v-agent-state-grid { margin: 11px 0 0; }
+.voytek-app:has(.v-dashboard) .v-agent-state-grid button { min-height: 75px; border-color: rgba(255,255,255,.1); }
+.voytek-app:has(.v-dashboard) .v-agent-state-grid button:hover { background: rgba(76,102,255,.12); }
+.voytek-app:has(.v-dashboard) .v-agent-state-grid strong { font: 700 32px/1 Inter, system-ui, sans-serif; }
+.voytek-app:has(.v-dashboard) .v-agent-state-grid span,
+.voytek-app:has(.v-dashboard) .v-agent-states-footnote { color: rgba(255,255,255,.55); }
+.voytek-app:has(.v-dashboard) .v-agent-state-grid i,
+.voytek-app:has(.v-dashboard) .v-agent-state-grid i.is-active,
+.voytek-app:has(.v-dashboard) .v-agent-state-grid i.is-draft { background: #4c66ff; }
+.voytek-app:has(.v-dashboard) .v-dashboard-agents { grid-column: 2; grid-row: 2 / span 2; gap: 12px; min-height: 0; }
+.voytek-app:has(.v-dashboard) .v-dashboard-agent-search { height: 38px; flex-basis: 38px; border-color: rgba(255,255,255,.12); border-radius: 9px; background: #050505; color: rgba(255,255,255,.65); }
+.voytek-app:has(.v-dashboard) .v-dashboard-agent-search input { color: #fff; font-size: 12px; }
+.voytek-app:has(.v-dashboard) .v-dashboard-filters button { min-height: 28px; border-radius: 7px; background: #050505; color: rgba(255,255,255,.64); font-size: 10px !important; }
+.voytek-app:has(.v-dashboard) .v-dashboard-filters button:hover,
+.voytek-app:has(.v-dashboard) .v-dashboard-filters button.is-active { background: #4c66ff; color: #fff; }
+.voytek-app:has(.v-dashboard) .v-dashboard-create { min-height: 37px; flex-basis: 37px; border-color: #4c66ff; border-radius: 9px; background: #4c66ff; font-size: 12px !important; }
+.voytek-app:has(.v-dashboard) .v-dashboard-create:hover { background: #171a20; }
+.voytek-app:has(.v-dashboard) .v-dashboard-agent-list { max-height: 340px; }
+.voytek-app:has(.v-dashboard) .v-dashboard-agent-row { min-height: 52px; border-color: rgba(255,255,255,.08); border-radius: 11px; background: #050505; }
+.voytek-app:has(.v-dashboard) .v-dashboard-agent-row:hover { border-color: #4c66ff; background: rgba(76,102,255,.12); }
+.voytek-app:has(.v-dashboard) .v-dashboard-agent-avatar { background: rgba(76,102,255,.24); }
+.voytek-app:has(.v-dashboard) .v-dashboard-agent-row > span:nth-child(2) small,
+.voytek-app:has(.v-dashboard) .v-dashboard-agent-empty p { color: rgba(255,255,255,.55); }
+.voytek-app:has(.v-dashboard) .v-card-count,
+.voytek-app:has(.v-dashboard) .v-dashboard-agent-empty svg { color: #4c66ff; }
+.voytek-app:has(.v-dashboard) .v-dashboard-all-agents { margin-top: auto; border-color: rgba(255,255,255,.1); color: #fff; font-size: 11px !important; }
+.voytek-app:has(.v-dashboard) .v-shadow-card { grid-column: 2; grid-row: 4; min-height: 220px; }
+.voytek-app:has(.v-dashboard) .v-shadow-stats { margin: 15px 0; }
+.voytek-app:has(.v-dashboard) .v-shadow-stats > div { border-color: rgba(255,255,255,.1); }
+.voytek-app:has(.v-dashboard) .v-shadow-stats strong { font: 700 30px/1 Inter, system-ui, sans-serif; }
+.voytek-app:has(.v-dashboard) .v-shadow-stats span,
+.voytek-app:has(.v-dashboard) .v-dashboard-info { color: rgba(255,255,255,.59); }
+.voytek-app:has(.v-dashboard) .v-shadow-stats i { background: #4c66ff; }
+.voytek-app:has(.v-dashboard) .v-dashboard-info { border-color: rgba(255,255,255,.1); border-radius: 9px; background: #050505; }
+.voytek-app:has(.v-dashboard) .v-activity-card { grid-column: 1; grid-row: 4; min-height: 220px; }
+.voytek-app:has(.v-dashboard) .v-activity-card header .v-activity-all { width: auto; }
+.voytek-app:has(.v-dashboard) .v-dashboard-activity-list { overflow-y: visible; }
+.voytek-app:has(.v-dashboard) .v-dashboard-activity-row { border-color: rgba(255,255,255,.1); }
+.voytek-app:has(.v-dashboard) .v-activity-icon { background: rgba(76,102,255,.19); }
+.voytek-app:has(.v-dashboard) .v-dashboard-activity-row > span:nth-child(2) small,
+.voytek-app:has(.v-dashboard) .v-dashboard-activity-row time,
+.voytek-app:has(.v-dashboard) .v-dashboard-activity-empty p { color: rgba(255,255,255,.55); }
+.voytek-app:has(.v-dashboard) .v-dashboard-activity-empty svg { color: #4c66ff; }
+.voytek-app:has(.v-dashboard) :is(button, input, select):focus-visible { outline-color: #4c66ff; }
+@keyframes home-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.voytek-app:has(.v-dashboard) .v-dashboard-card:nth-child(2) { animation-delay: .05s; }
+.voytek-app:has(.v-dashboard) .v-dashboard-card:nth-child(3) { animation-delay: .1s; }
+
+@media (max-width: 1050px) {
+  .voytek-app:has(.v-dashboard) { grid-template-columns: 185px minmax(0, 1fr); }
+  .voytek-app:has(.v-dashboard) .voytek-content { padding: 22px; }
+  .voytek-app:has(.v-dashboard) .v-dashboard { grid-template-columns: minmax(0, 1fr) minmax(230px, .75fr); gap: 15px; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-card { padding: 18px; }
+  .voytek-app:has(.v-dashboard) .v-budget-breakdown { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 0; }
+  .voytek-app:has(.v-dashboard) .v-budget-breakdown > div:nth-child(2) { border-right: 0; }
+  .voytek-app:has(.v-dashboard) .v-budget-breakdown > div:nth-child(3) { padding-left: 0; }
+}
+@media (max-width: 760px) {
+  .voytek-app:has(.v-dashboard) { height: auto; min-height: 100dvh; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr; grid-template-areas: 'header' 'sidebar' 'main'; }
+  .voytek-app:has(.v-dashboard) .voytek-header-main { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 12px 16px; }
+  .voytek-app:has(.v-dashboard) .voytek-header-title { display: grid; grid-column: 1; grid-row: 1; }
+  .voytek-app:has(.v-dashboard) .voytek-global-search { grid-column: 1 / -1; grid-row: 2; }
+  .voytek-app:has(.v-dashboard) .voytek-header-actions { grid-column: 2; grid-row: 1; }
+  .voytek-app:has(.v-dashboard) .is-home-sidebar { position: static; width: 100%; height: auto; padding: 7px 12px; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .voytek-app:has(.v-dashboard) .voytek-home-brand,
+  .voytek-app:has(.v-dashboard) .voytek-home-nav-caption,
+  .voytek-app:has(.v-dashboard) .voytek-home-logout { display: none; }
+  .voytek-app:has(.v-dashboard) .voytek-home-navigation { flex-direction: row; overflow-x: auto; gap: 4px; scrollbar-width: none; }
+  .voytek-app:has(.v-dashboard) .voytek-home-nav-group { display: contents; }
+  .voytek-app:has(.v-dashboard) .voytek-home-navigation::-webkit-scrollbar { display: none; }
+  .voytek-app:has(.v-dashboard) .voytek-home-nav-item { min-height: 37px; flex: 0 0 auto; gap: 7px; padding: 0 10px; white-space: nowrap; font-size: 11px !important; }
+  .voytek-app:has(.v-dashboard) .voytek-home-nav-item svg { width: 15px; height: 15px; flex-basis: 15px; }
+  .voytek-app:has(.v-dashboard) .voytek-main { overflow: visible; }
+  .voytek-app:has(.v-dashboard) .voytek-content { padding: 20px 14px 30px; }
+  .voytek-app:has(.v-dashboard) .v-dashboard { display: grid; width: 100%; height: auto; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; gap: 13px; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-heading { grid-column: 1; padding-bottom: 1px; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-heading-actions { width: 100%; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-mobile-tabs { display: none; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-top,
+  .voytek-app:has(.v-dashboard) .v-dashboard-bottom { display: contents !important; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-card { display: flex !important; grid-column: 1; grid-row: auto; width: 100%; height: auto; min-height: 0; }
+  .voytek-app:has(.v-dashboard) .v-budget-card { order: 1; }
+  .voytek-app:has(.v-dashboard) .v-agent-states-card { order: 2; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-agents { order: 3; }
+  .voytek-app:has(.v-dashboard) .v-activity-card { order: 4; }
+  .voytek-app:has(.v-dashboard) .v-shadow-card { order: 5; }
+  .voytek-app:has(.v-dashboard) .v-budget-amount { margin: 27px 0; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-agent-list { max-height: 260px; }
+}
+@media (max-width: 420px) {
+  .voytek-app:has(.v-dashboard) .voytek-api-status span { display: none; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-heading-actions { flex-wrap: wrap; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-approval-pill,
+  .voytek-app:has(.v-dashboard) .v-dashboard-period { flex: 1 1 100%; }
+  .voytek-app:has(.v-dashboard) .v-dashboard-card { padding: 17px; }
+  .voytek-app:has(.v-dashboard) .v-budget-breakdown > div { padding-inline: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .voytek-app:has(.v-dashboard) *,
+  .voytek-app:has(.v-dashboard) *::before,
+  .voytek-app:has(.v-dashboard) *::after { animation: none !important; transition: none !important; }
+}

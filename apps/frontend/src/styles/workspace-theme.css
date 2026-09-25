@@ -1,0 +1,253 @@
+/* Shared identity for every authenticated Voytek screen. Login is outside .voytek-app. */
+.voytek-app {
+  --v-bg: #050505;
+  --v-sidebar: #050505;
+  --v-surface: #171a20;
+  --v-surface-raised: #171a20;
+  --v-line: rgba(255, 255, 255, .1);
+  --v-text: #fff;
+  --v-muted: rgba(255, 255, 255, .68);
+  --v-dim: rgba(255, 255, 255, .48);
+  --v-blue: #4c66ff;
+  --v-blue-hover: #4c66ff;
+  width: 100%;
+  min-height: 100dvh;
+  height: auto;
+  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas: 'sidebar header' 'sidebar main';
+  overflow: clip;
+  background: #050505;
+  color: #fff;
+  font-family: Inter, system-ui, sans-serif;
+}
+.voytek-app .voytek-icon-sidebar.is-home-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  min-height: 0;
+  align-items: stretch;
+  gap: 0;
+  padding: 27px 17px 20px;
+  overflow: hidden;
+  border-right: 1px solid rgba(255,255,255,.1);
+  background: #050505;
+}
+.voytek-app .voytek-home-navigation { min-height: 0; display: flex; flex: 1; flex-direction: column; align-items: stretch; gap: 4px; overflow-x: hidden; border: 0; scrollbar-color: rgba(255,255,255,.2) transparent; }
+.voytek-app .voytek-home-nav-group { min-width: 0; }
+.voytek-app .voytek-home-nav-item { min-width: 0; flex-wrap: wrap; gap: 3px 10px; padding-block: 9px; }
+.voytek-app .voytek-home-nav-item span { flex: 1 1 calc(100% - 28px); overflow-wrap: anywhere; }
+.voytek-app .voytek-home-nav-item small { max-width: calc(100% - 28px); margin-left: 28px; overflow-wrap: anywhere; }
+.voytek-app .voytek-home-brand:focus-visible,
+.voytek-app .voytek-home-nav-item:focus-visible,
+.voytek-app .voytek-home-logout:focus-visible { outline: 2px solid #4c66ff; outline-offset: 2px; }
+.voytek-app .voytek-header { border-bottom: 1px solid rgba(255,255,255,.1); background: #050505; }
+.voytek-app .voytek-header-main {
+  min-height: 72px;
+  grid-template-columns: minmax(0,1fr) minmax(180px,280px) auto;
+  padding: 13px clamp(18px,3vw,42px);
+}
+.voytek-app .voytek-header-title { display: none; }
+.voytek-app .voytek-global-search { grid-column: 2; }
+.voytek-app .voytek-header-actions { grid-column: 3; }
+.voytek-app .voytek-global-search label { border-color: rgba(255,255,255,.12); border-radius: 10px; background: #171a20; color: rgba(255,255,255,.58); }
+.voytek-app .voytek-global-search label:focus-within { border-color: #4c66ff; box-shadow: 0 0 0 3px rgba(76,102,255,.2); }
+.voytek-app .voytek-global-search input { color: #fff; }
+.voytek-app .voytek-global-search input::placeholder { color: rgba(255,255,255,.48); }
+.voytek-app .voytek-global-search kbd { border-color: rgba(255,255,255,.12); background: #050505; color: rgba(255,255,255,.58); }
+.voytek-app .voytek-search-results,
+.voytek-app .voytek-account-popover { border-color: rgba(255,255,255,.15); border-radius: 12px; background: #171a20; color: #fff; }
+.voytek-app .voytek-search-results button:hover,
+.voytek-app .voytek-account-popover button:hover { background: rgba(76,102,255,.22); }
+.voytek-app .voytek-account-popover button { background: #050505; }
+.voytek-app .voytek-api-status { color: rgba(255,255,255,.58); font-size: 11px; }
+.voytek-app .voytek-api-status.is-offline i { background: rgba(255,255,255,.5); }
+.voytek-app .voytek-api-status.is-online i { background: #4c66ff; }
+.voytek-app .voytek-icon-action,
+.voytek-app .voytek-user-button { border-color: rgba(255,255,255,.12); border-radius: 50%; background: #171a20; color: #fff; }
+.voytek-app .voytek-icon-action:hover,
+.voytek-app .voytek-user-button:hover { border-color: #4c66ff; background: rgba(76,102,255,.25); }
+.voytek-app .voytek-user-button { background: #4c66ff; }
+.voytek-app .voytek-subnav { display: none; gap: 7px; padding: 0 clamp(18px,3vw,42px) 13px; }
+.voytek-app .voytek-subnav-item { border-color: rgba(255,255,255,.12); border-radius: 9px; background: #171a20; color: rgba(255,255,255,.68); font-size: 12px !important; }
+.voytek-app .voytek-subnav-item:hover,
+.voytek-app .voytek-subnav-item.is-active { border-color: #4c66ff; background: rgba(76,102,255,.2); color: #fff; }
+.voytek-app .voytek-subnav-item small { color: rgba(255,255,255,.53); }
+.voytek-app .voytek-main { min-width: 0; background: #050505; }
+.voytek-app .voytek-api-banner { padding: 16px clamp(18px,3vw,42px) 0; }
+.voytek-app .voytek-content { width: 100%; max-width: 1520px; padding: clamp(24px,3vw,44px); }
+.voytek-app .voytek-footer { padding: 16px clamp(18px,3vw,42px); border-color: rgba(255,255,255,.1); color: rgba(255,255,255,.45); font-size: 11px; }
+.voytek-app :is(button,input,textarea,select):focus-visible { outline: 2px solid #4c66ff; outline-offset: 2px; }
+
+.voytek-app .v-page { min-width: 0; gap: 22px; animation: workspace-enter .45s ease both; }
+.voytek-app .v-page-heading { align-items: flex-end; gap: 24px; padding-bottom: 4px; }
+.voytek-app .v-page-heading h1 { margin-bottom: 9px; color: #fff; font: 700 clamp(30px,3vw,42px)/1.08 Inter,system-ui,sans-serif; letter-spacing: -.045em; }
+.voytek-app .v-page-heading .v-muted { max-width: 720px; color: rgba(255,255,255,.62); font-size: 14px; line-height: 1.55; }
+.voytek-app .v-muted { color: rgba(255,255,255,.62); }
+.voytek-app .v-panel,
+.voytek-app .v-home-activity { min-width: 0; padding: clamp(19px,2vw,26px); border: 1px solid rgba(255,255,255,.1); border-radius: 20px; background: #171a20; box-shadow: 0 15px 40px rgba(0,0,0,.16); }
+.voytek-app .v-panel-heading { align-items: center; gap: 18px; margin-bottom: 18px; }
+.voytek-app .v-panel-heading h2,
+.voytek-app .v-section-heading h2 { margin-bottom: 5px; color: #fff; font: 600 18px/1.3 Inter,system-ui,sans-serif; letter-spacing: -.02em; }
+.voytek-app .v-panel-heading .v-muted { color: rgba(255,255,255,.55); font-size: 13px; }
+.voytek-app .v-dashboard-grid,
+.voytek-app .v-two-columns,
+.voytek-app .v-automation-grid,
+.voytek-app .v-settings-facts { gap: 18px; }
+.voytek-app .v-empty-state { min-height: 150px; }
+.voytek-app .v-empty-state h3 { color: #fff; font: 600 18px/1.3 Inter,system-ui,sans-serif; }
+.voytek-app .v-empty-state p { color: rgba(255,255,255,.58); font-size: 13px; }
+.voytek-app .v-empty-mark,
+.voytek-app .v-empty-icon { border-color: rgba(76,102,255,.4); color: #4c66ff; }
+.voytek-app .v-loading-line { color: rgba(255,255,255,.62); font-size: 13px; }
+
+.voytek-app .v-primary-button,
+.voytek-app .v-secondary-button { min-height: 42px; padding-inline: 16px; border-radius: 10px; font-size: 13px !important; font-weight: 600; }
+.voytek-app .v-primary-button { border-color: #4c66ff; background: #4c66ff; color: #fff; }
+.voytek-app .v-primary-button:hover:not(:disabled) { border-color: #4c66ff; background: #171a20; }
+.voytek-app .v-secondary-button { border-color: rgba(255,255,255,.17); background: #171a20; color: #fff; }
+.voytek-app .v-secondary-button:hover:not(:disabled) { border-color: #4c66ff; background: rgba(76,102,255,.13); }
+.voytek-app .v-text-button,
+.voytek-app .v-table-link,
+.voytek-app .v-next-steps button > strong { color: #fff; }
+.voytek-app .v-text-button:hover,
+.voytek-app .v-table-link:hover { color: #4c66ff; }
+.voytek-app .v-segment-control { gap: 6px; border-color: rgba(255,255,255,.1); }
+.voytek-app .v-segment-control button { border-radius: 8px; color: rgba(255,255,255,.6); font-size: 12px !important; }
+.voytek-app .v-segment-control button:hover,
+.voytek-app .v-segment-control button[aria-selected='true'] { border-color: #4c66ff; background: rgba(76,102,255,.18); color: #fff; }
+.voytek-app .v-workflow-item button { border-color: rgba(255,255,255,.1); border-radius: 12px; background: #171a20; }
+.voytek-app .v-workflow-item button:hover { border-color: #4c66ff; background: rgba(76,102,255,.12); }
+.voytek-app .v-workflow-number { border-color: #4c66ff; background: rgba(76,102,255,.18); color: #fff; }
+.voytek-app .v-workflow-arrow { color: rgba(255,255,255,.46); }
+
+.voytek-app .v-metric-row { gap: 12px; border: 0; }
+.voytek-app .v-metric { min-width: 0; min-height: 114px; padding: 18px; border: 1px solid rgba(255,255,255,.1); border-radius: 15px; background: #171a20; }
+.voytek-app .v-metric:last-child { border: 1px solid rgba(255,255,255,.1); }
+.voytek-app .v-metric > span,
+.voytek-app .v-metric > small { color: rgba(255,255,255,.55); }
+.voytek-app .v-metric > strong { overflow: visible; color: #fff; font: 700 clamp(21px,2vw,30px)/1.1 Inter,system-ui,sans-serif; overflow-wrap: anywhere; text-overflow: clip; white-space: normal; }
+.voytek-app .v-summary-line > strong { color: #fff; font-family: Inter,system-ui,sans-serif; }
+
+.voytek-app .v-table-wrap { min-width: 0; scrollbar-color: rgba(76,102,255,.65) #171a20; }
+.voytek-app .v-table th { border-color: rgba(255,255,255,.15); color: rgba(255,255,255,.58); font-size: 12px; }
+.voytek-app .v-table td { border-color: rgba(255,255,255,.08); color: #fff; font-size: 13px; }
+.voytek-app .v-table tbody tr:hover { background: rgba(76,102,255,.07); }
+.voytek-app .v-table td small.v-cell-detail,
+.voytek-app .v-table code { color: rgba(255,255,255,.6); }
+.voytek-app .v-row-actions button,
+.voytek-app .v-row-action-danger,
+.voytek-app .v-approve-button { min-height: 32px; border-color: rgba(255,255,255,.16); border-radius: 8px; background: #050505; color: #fff; }
+.voytek-app .v-row-actions button:hover:not(:disabled),
+.voytek-app .v-row-action-danger:hover:not(:disabled),
+.voytek-app .v-approve-button:hover:not(:disabled) { border-color: #4c66ff; background: rgba(76,102,255,.15); }
+.voytek-app .v-status,
+.voytek-app .v-status.is-positive,
+.voytek-app .v-status.is-negative,
+.voytek-app .v-role-summary .v-status { border-color: rgba(76,102,255,.43); border-radius: 999px; background: rgba(76,102,255,.14); color: #fff; }
+.voytek-app .v-status.is-negative { border-style: dashed; }
+.voytek-app .v-permission-yes { color: #4c66ff; }
+.voytek-app .v-permission-no { color: rgba(255,255,255,.5); }
+
+.voytek-app .v-notice,
+.voytek-app .v-notice.is-warning,
+.voytek-app .v-notice.is-error,
+.voytek-app .v-notice.is-success { border-color: rgba(76,102,255,.36); border-radius: 10px; background: rgba(76,102,255,.09); color: rgba(255,255,255,.82); }
+.voytek-app .v-notice.is-error { border-style: dashed; }
+.voytek-app .v-notice code { color: #fff; }
+.voytek-app .v-toast,
+.voytek-app .v-toast.is-warning,
+.voytek-app .v-toast.is-error,
+.voytek-app .v-toast.is-success { border-color: #4c66ff; border-radius: 12px; background: #171a20; color: #fff; font-size: 13px; }
+.voytek-app .v-form-error { color: #fff; }
+
+.voytek-app .v-field,
+.voytek-app .v-autonomy-picker legend { color: rgba(255,255,255,.8); font-size: 13px; }
+.voytek-app .v-field > small,
+.voytek-app .v-autonomy-options small { color: rgba(255,255,255,.56); }
+.voytek-app .v-field :is(input,textarea,select),
+.voytek-app .v-filter-row :is(input,select) { min-height: 43px; border-color: rgba(255,255,255,.17); border-radius: 9px; background: #050505; color: #fff; font-size: 13px; }
+.voytek-app .v-field :is(input,textarea,select):focus,
+.voytek-app .v-filter-row :is(input,select):focus { border-color: #4c66ff; box-shadow: 0 0 0 3px rgba(76,102,255,.2); }
+.voytek-app .v-field :is(input,textarea)::placeholder,
+.voytek-app .v-filter-row input::placeholder { color: rgba(255,255,255,.44); }
+.voytek-app .v-autonomy-options label { border-color: rgba(255,255,255,.13); border-radius: 9px; }
+.voytek-app .v-autonomy-options label.is-selected { border-color: #4c66ff; background: rgba(76,102,255,.12); }
+.voytek-app .v-autonomy-options strong { color: #fff; }
+.voytek-app .v-autonomy-options input { accent-color: #4c66ff; }
+.voytek-app .v-modal-backdrop { background: rgba(5,5,5,.78); }
+.voytek-app .v-modal { border-color: rgba(255,255,255,.15); border-radius: 20px; background: #171a20; color: #fff; }
+.voytek-app .v-modal-header h2 { color: #fff; font: 700 23px/1.2 Inter,system-ui,sans-serif; }
+.voytek-app .v-icon-button { border-color: rgba(255,255,255,.16); border-radius: 9px; color: #fff; }
+.voytek-app .v-icon-button:hover { border-color: #4c66ff; }
+
+.voytek-app .v-agent-row,
+.voytek-app .v-approval-row,
+.voytek-app .v-budget-row,
+.voytek-app .v-recommendation-list article { border-color: rgba(255,255,255,.1); }
+.voytek-app .v-agent-row:hover .v-agent-row-copy strong { color: #4c66ff; }
+.voytek-app .v-agent-monogram { border-color: rgba(76,102,255,.3); border-radius: 9px; background: rgba(76,102,255,.15); color: #fff; }
+.voytek-app .v-budget-bar { background: #050505; }
+.voytek-app .v-budget-bar span { background: #4c66ff; }
+.voytek-app .v-proposal-result,
+.voytek-app .v-decision-result { border-color: rgba(76,102,255,.3); border-radius: 10px; background: rgba(76,102,255,.08); }
+.voytek-app .v-proposal-result > div,
+.voytek-app .v-proposal-result > div span,
+.voytek-app .v-decision-result p { color: #fff; }
+.voytek-app .v-roadmap-list { color: rgba(255,255,255,.72); font-size: 13px; }
+.voytek-app .v-roadmap-list li::marker { color: #4c66ff; }
+.voytek-app .v-roadmap-footnote { border-color: rgba(255,255,255,.1); color: rgba(255,255,255,.48); }
+
+@keyframes workspace-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 1050px) {
+  .voytek-app { grid-template-columns: 185px minmax(0,1fr); }
+  .voytek-app .voytek-content { padding: 24px; }
+  .voytek-app .v-metric-row { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .voytek-app .v-automation-grid { grid-template-columns: 1fr; }
+  .voytek-app .v-automation-grid .v-panel { grid-column: auto; grid-row: auto; }
+}
+@media (max-width: 760px) {
+  .voytek-app { display: grid; grid-template-columns: minmax(0,1fr); grid-template-rows: auto auto 1fr; grid-template-areas: 'header' 'sidebar' 'main'; }
+  .voytek-app .voytek-header-main { grid-template-columns: minmax(0,1fr) auto; gap: 10px; padding: 12px 16px; }
+  .voytek-app .voytek-header-title { display: grid; grid-column: 1; grid-row: 1; }
+  .voytek-app .voytek-header-title strong { color: #fff; font: 700 17px/1 Inter,system-ui,sans-serif; letter-spacing: .02em; }
+  .voytek-app .voytek-header-title span { color: rgba(255,255,255,.46); font-size: 11px; }
+  .voytek-app .voytek-global-search { grid-column: 1 / -1; grid-row: 2; }
+  .voytek-app .voytek-header-actions { grid-column: 2; grid-row: 1; }
+  .voytek-app .voytek-subnav { display: flex; padding: 0 14px 10px; }
+  .voytek-app .voytek-icon-sidebar.is-home-sidebar { position: static; width: 100%; height: auto; padding: 7px 12px; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .voytek-app .voytek-home-brand,
+  .voytek-app .voytek-home-nav-caption,
+  .voytek-app .voytek-home-logout { display: none; }
+  .voytek-app .voytek-home-navigation { flex-direction: row; overflow-x: auto; gap: 4px; scrollbar-width: none; }
+  .voytek-app .voytek-home-navigation::-webkit-scrollbar { display: none; }
+  .voytek-app .voytek-home-nav-group { display: contents; }
+  .voytek-app .voytek-home-nav-item { min-height: 37px; flex: 0 0 auto; flex-wrap: nowrap; width: auto; gap: 7px; padding: 0 10px; white-space: nowrap; font-size: 11px !important; }
+  .voytek-app .voytek-home-nav-item span { flex: 1 1 auto; white-space: nowrap; }
+  .voytek-app .voytek-home-nav-item svg { width: 15px; height: 15px; flex-basis: 15px; }
+  .voytek-app .voytek-home-nav-item small { display: none; }
+  .voytek-app .voytek-content { padding: 20px 14px 30px; }
+  .voytek-app .voytek-api-banner { padding: 12px 14px 0; }
+  .voytek-app .voytek-footer { padding-inline: 14px; }
+  .voytek-app .v-page-heading { align-items: flex-start; flex-direction: column; }
+  .voytek-app .v-page-heading h1 { font-size: 30px; }
+  .voytek-app .v-heading-action { width: 100%; }
+  .voytek-app .v-heading-action button { width: 100%; }
+  .voytek-app .v-dashboard-grid,
+  .voytek-app .v-two-columns,
+  .voytek-app .v-settings-facts { grid-template-columns: minmax(0,1fr); }
+  .voytek-app .v-metric-row { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .voytek-app .v-metric { min-height: 105px; padding: 15px; border: 1px solid rgba(255,255,255,.1); }
+  .voytek-app .v-modal { border-radius: 18px 18px 0 0; }
+}
+@media (max-width: 420px) {
+  .voytek-app .voytek-api-status span { display: none; }
+  .voytek-app .v-panel { padding: 17px; }
+  .voytek-app .v-metric-row { grid-template-columns: minmax(0,1fr); }
+  .voytek-app .v-metric { min-height: 88px; }
+  .voytek-app .v-form-actions { flex-wrap: wrap; }
+  .voytek-app .v-form-actions button { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .voytek-app .v-page { animation: none; }
+}
