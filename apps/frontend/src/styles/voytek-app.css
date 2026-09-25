@@ -760,8 +760,8 @@
   .v-home-summary-card { transition: none; }
 }
 
-@media (min-width: 721px) and (max-height: 760px) {
-  .auth-shell { height: auto; min-height: 100vh; place-items: start center; overflow-y: auto; }
-  .auth-layout { height: auto; min-height: 100vh; overflow: visible; animation: none; }
-  .auth-card { margin-top: 24px; margin-bottom: 24px; transform: none; }
+@media (min-width: 721px) and (max-height: 820px) {
+  .auth-shell { height: 100dvh; min-height: 100dvh; place-items: center; overflow: hidden; }
+  .auth-layout { height: 100dvh; min-height: 100dvh; overflow: hidden; animation: none; }
+  .auth-card { margin: 0; transform: scale(.86); transform-origin: center center; }
 }

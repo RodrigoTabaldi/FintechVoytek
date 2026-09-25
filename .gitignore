@@ -11,3 +11,5 @@ coverage/
 *.user
 *.suo
 *.log
+
+.fake

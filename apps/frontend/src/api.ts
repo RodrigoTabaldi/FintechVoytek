@@ -2,6 +2,7 @@ const configuredApiUrl = (import.meta.env.VITE_API_URL as string | undefined)?.t
 export const API_BASE_URL = configuredApiUrl
   ? configuredApiUrl.replace(/\/$/, '')
   : 'http://localhost:8080'
+export const SESSION_EXPIRED_EVENT = 'voytek:session-expired'
 
 export type Membership = { tenantId: string; role: string }
 export type AuthResponse = {
@@ -196,6 +197,10 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   if (!response.ok) {
+    if (response.status === 401 && token) {
+      clearSession()
+      window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
+    }
     const problem = await response.json().catch(() => null) as ApiProblem | null
     throw new Error(describeProblem(problem, response.status))
   }

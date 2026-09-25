@@ -83,6 +83,7 @@ export default function AuthPage({ onAuthenticated }: AuthPageProps) {
     <main className="auth-shell">
       <div className="auth-layout">
         <section className="auth-visual" aria-label="Identidade visual Voytek">
+          <img className="auth-desktop-bear" src="/brand/1.png?v=4" alt="" aria-hidden="true" />
           <div className="auth-visual-brand">VOYTEK / CONTROL</div>
           <div className="auth-visual-placeholder" aria-hidden="true">
             <span>VOYTEK</span>
