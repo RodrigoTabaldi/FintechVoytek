@@ -1,19 +1,18 @@
 # Desenvolvimento local
 
-Pré-requisitos: .NET 8 SDK, Node.js/npm e Docker Compose se for usar PostgreSQL em container.
+Pré-requisitos: .NET 8 SDK, Node.js/npm e Docker Compose para a topologia em containers.
 
-## API e banco via Compose
+## API e infraestrutura via Compose
 
-Na raiz do repositório, crie um `.env` local e configure um segredo de JWT aleatório com pelo menos 32 caracteres. O `.env` é ignorado pelo Git; não use os valores de desenvolvimento em ambientes compartilhados.
+Na raiz do repositório, crie `.env` sem sobrescrever um arquivo existente. Se já houver `.env`, acrescente manualmente as chaves novas que estiverem faltando (`POSTGRES_PASSWORD`, `REDIS_PASSWORD` e `RABBITMQ_PASSWORD`). Substitua a chave JWT por um valor aleatório de pelo menos 32 caracteres:
 
 ```powershell
 if (Test-Path .env) { throw 'Preserve your existing .env and edit it manually.' }
 Copy-Item .env.example .env
-# Edite .env e substitua Jwt__SigningKey por um segredo local aleatório.
 docker compose up --build -d
 ```
 
-A API publica `http://localhost:8080` e aplica as migrations ao iniciar. Verifique `http://localhost:8080/health/ready` antes de usar o painel.
+O Nginx publica `http://localhost:8080` e distribui requisições entre duas réplicas da API. PostgreSQL, Redis, RabbitMQ e worker iniciam junto. As APIs aplicam migrations sob um advisory lock PostgreSQL. Verifique `http://localhost:8080/health/ready` antes de usar o painel.
 
 ## Painel web
 
@@ -26,17 +25,17 @@ npm.cmd ci
 npm.cmd run dev
 ```
 
-Abra `http://localhost:5173`. A origem local está na allowlist CORS atual da API.
+Abra `http://localhost:5173`. A origem local está na allowlist CORS da API.
 
-## API local sem container
+## API sem containers
 
-Com PostgreSQL disponível em `localhost:5432` e o `.env` preenchido, a partir da raiz:
+Com PostgreSQL disponível em `localhost:5432` e `.env` configurado, execute a partir da raiz:
 
 ```powershell
 dotnet run --project .\apps\backend\src\Voytek.Api\Voytek.Api.csproj --launch-profile Voytek.Api
 ```
 
-O perfil publica HTTP em `http://localhost:54309` e HTTPS em `https://localhost:54308`. Para apontar o frontend a essa API, use `$env:VITE_API_URL = 'http://localhost:54309'` no terminal do Vite.
+O perfil serve HTTP em `http://localhost:54309` e HTTPS em `https://localhost:54308`. Defina `$env:VITE_API_URL = 'http://localhost:54309'` no terminal do Vite. Redis e RabbitMQ são opcionais neste modo: sem Redis, o cache usa memória local; sem RabbitMQ, a telemetria de propostas fica desativada.
 
 ## Verificações
 
@@ -45,9 +44,9 @@ dotnet build .\apps\backend\Voytek.sln -v:minimal
 dotnet test .\apps\backend\Voytek.sln --no-build -v:minimal
 ```
 
-O frontend usa `npm.cmd run build` dentro de `apps\frontend`. Os projetos de teste estão no repositório, mas no estado atual nenhum caso de teste é descoberto pelo `dotnet test`; build verde não equivale a cobertura automatizada.
+Para compilar o frontend, execute `npm.cmd run build` em `apps\frontend`. Os projetos de teste existem, mas atualmente não descobrem casos de teste; build verde não representa cobertura automatizada dos fluxos de negócio.
 
-Para parar os serviços sem apagar os dados persistidos:
+Pare os serviços Compose sem apagar os dados persistidos:
 
 ```powershell
 docker compose down

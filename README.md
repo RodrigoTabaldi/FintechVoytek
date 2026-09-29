@@ -12,9 +12,9 @@ Budgets e ledger são registros de controle, não uma conta com saldo custodiado
 
 ## Arquitetura
 
-O projeto usa um monólito modular .NET com fronteiras de domínio e persistência PostgreSQL/EF Core. O React/TypeScript/Vite é o painel web. A imagem inicial propõe serviços e infraestrutura distribuídos; para o MVP, a topologia foi adaptada para módulos isolados dentro de um deploy simples, sem introduzir microserviços, Redis, broker externo ou Kubernetes antes de haver necessidade comprovada.
+O backend continua como monólito modular .NET, com fronteiras de domínio e PostgreSQL/EF Core. A execução local agora inclui Nginx como gateway/load balancer para duas réplicas stateless da API, Redis para cache curto de propostas de IA, RabbitMQ para telemetria assíncrona de propostas e um worker consumidor. O painel continua em React/TypeScript/Vite e pode rodar em `apps/frontend`.
 
-O diagrama, as fronteiras dos módulos e as extensões futuras estão em [`docs/architecture/README.md`](./docs/architecture/README.md). O contexto completo do produto e do MVP está em [`VOYTEK_AI_CONTEXT_MVP.txt`](./VOYTEK_AI_CONTEXT_MVP.txt); [`Ideia.txt`](./Ideia.txt) registra a visão inicial.
+O estado implementado, as diferenças para a imagem e as etapas externas restantes estão em [`docs/architecture/README.md`](./docs/architecture/README.md). [`Ideia.txt`](./Ideia.txt) registra a visão inicial do produto.
 
 ## Código no repositório
 

@@ -43,3 +43,6 @@ jobs:
       - run: docker compose config --quiet
         env:
           Jwt__SigningKey: ci-only-secret-with-at-least-32-characters
+          POSTGRES_PASSWORD: ci-only-postgres-password
+          REDIS_PASSWORD: ci-only-redis-password
+          RABBITMQ_PASSWORD: ci-only-rabbitmq-password

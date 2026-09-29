@@ -3,5 +3,5 @@ using Microsoft.Extensions.Hosting;
 using Voytek.Workers;
 
 var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<VoytekWorker>();
+builder.Services.AddHostedService<ProposalTelemetryConsumer>();
 await builder.Build().RunAsync();

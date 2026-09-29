@@ -1,8 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <ProjectReference Include="..\..\..\apps\backend\src\Voytek.Application\Voytek.Application.csproj" />
     <ProjectReference Include="..\..\..\apps\backend\src\Voytek.Domain\Voytek.Domain.csproj" />
+    <ProjectReference Include="..\..\..\apps\backend\src\Voytek.Infrastructure\Voytek.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\apps\backend\src\Voytek.SharedKernel\Voytek.SharedKernel.csproj" />
   </ItemGroup>
   <PropertyGroup>

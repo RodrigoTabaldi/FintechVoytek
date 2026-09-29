@@ -2,34 +2,111 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: voytek
-      POSTGRES_USER: voytek
-      POSTGRES_PASSWORD: voytek_local_only
+      POSTGRES_DB: ${POSTGRES_DB:-voytek}
+      POSTGRES_USER: ${POSTGRES_USER:-voytek}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the environment or .env file}
     ports:
       - "5432:5432"
     volumes:
       - voytek-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U voytek -d voytek"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 10
+    restart: unless-stopped
 
-  api:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:?Set REDIS_PASSWORD in the environment or .env file}"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in the environment or .env file}
+    volumes:
+      - voytek-redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$${REDIS_PASSWORD}\" ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-voytek}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD in the environment or .env file}
+    volumes:
+      - voytek-rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api-1:
     build:
       context: .
       dockerfile: apps/backend/src/Voytek.Api/Dockerfile
-    environment:
-      ConnectionStrings__VoytekDatabase: Host=postgres;Port=5432;Database=voytek;Username=voytek;Password=voytek_local_only
+    environment: &api-environment
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__VoytekDatabase: Host=postgres;Port=5432;Database=${POSTGRES_DB:-voytek};Username=${POSTGRES_USER:-voytek};Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the environment or .env file}
+      ConnectionStrings__Redis: redis:6379,password=${REDIS_PASSWORD:?Set REDIS_PASSWORD in the environment or .env file},abortConnect=false
+      ConnectionStrings__RabbitMQ: amqp://${RABBITMQ_USER:-voytek}:${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD in the environment or .env file}@rabbitmq:5672/
       Jwt__Issuer: ${Jwt__Issuer:-voytek}
       Jwt__Audience: ${Jwt__Audience:-voytek-api}
       Jwt__SigningKey: ${Jwt__SigningKey:?Set Jwt__SigningKey in the environment or .env file}
+      AI__Provider: ${AI__Provider:-openai}
+      AI__Model: ${AI__Model:-gpt-5.6-luna}
+      AI__TimeoutSeconds: ${AI__TimeoutSeconds:-30}
+      AI__ProposalCacheSeconds: ${AI__ProposalCacheSeconds:-30}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-    ports:
-      - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  api-2:
+    build:
+      context: .
+      dockerfile: apps/backend/src/Voytek.Api/Dockerfile
+    environment: *api-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  gateway:
+    image: nginx:alpine
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./infra/nginx/voytek.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api-1
+      - api-2
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/backend/src/Voytek.Workers/Dockerfile
+    environment:
+      ConnectionStrings__RabbitMQ: amqp://${RABBITMQ_USER:-voytek}:${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD in the environment or .env file}@rabbitmq:5672/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   voytek-postgres-data:
+  voytek-redis-data:
+  voytek-rabbitmq-data:

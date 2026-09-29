@@ -19,6 +19,7 @@ using Voytek.Domain.Authorizations;
 using Voytek.Domain.Policies;
 using Voytek.Infrastructure.Authorizations;
 using Voytek.Infrastructure.AI;
+using Voytek.Infrastructure.Eventing;
 using Voytek.Application.AI;
 using Voytek.Application.Notifications;
 using Voytek.Application.Storage;
@@ -31,6 +32,7 @@ using Voytek.Domain.Tenancy;
 using Voytek.Infrastructure.Identity;
 using Voytek.Infrastructure.Persistence;
 using Voytek.SharedKernel.Tenancy;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +48,26 @@ var connectionString = builder.Configuration.GetConnectionString("VoytekDatabase
 builder.Services.AddScoped<TenantContext>();
 builder.Services.AddScoped<ICurrentTenant>(serviceProvider => serviceProvider.GetRequiredService<TenantContext>());
 builder.Services.AddDbContext<VoytekDbContext>(options => options.UseNpgsql(connectionString));
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+if (string.IsNullOrWhiteSpace(redisConnectionString))
+{
+    builder.Services.AddDistributedMemoryCache();
+}
+else
+{
+    builder.Services.AddStackExchangeRedisCache(options => options.Configuration = redisConnectionString);
+    builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+    {
+        var redisOptions = ConfigurationOptions.Parse(redisConnectionString);
+        redisOptions.AbortOnConnectFail = false;
+        return ConnectionMultiplexer.Connect(redisOptions);
+    });
+    builder.Services.AddSingleton<IAgentProposalRateLimiter, RedisAgentProposalRateLimiter>();
+}
+if (string.IsNullOrWhiteSpace(redisConnectionString))
+{
+    builder.Services.AddSingleton<IAgentProposalRateLimiter, AllowAgentProposalRateLimiter>();
+}
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
 {
     options.User.RequireUniqueEmail = true;
@@ -88,6 +110,17 @@ builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<AuthorizationDecisionService>();
 builder.Services.Configure<LlmOptions>(builder.Configuration.GetSection(LlmOptions.SectionName));
 builder.Services.PostConfigure<LlmOptions>(options => options.ApiKey = builder.Configuration["OPENAI_API_KEY"]);
+builder.Services.AddScoped<AgentProposalContextRetriever>();
+if (string.IsNullOrWhiteSpace(builder.Configuration.GetConnectionString("RabbitMQ")))
+{
+    builder.Services.AddSingleton<IAgentProposalEventPublisher, DisabledAgentProposalEventPublisher>();
+}
+else
+{
+    builder.Services.AddSingleton<RabbitMqAgentProposalEventPublisher>();
+    builder.Services.AddSingleton<IAgentProposalEventPublisher>(serviceProvider =>
+        serviceProvider.GetRequiredService<RabbitMqAgentProposalEventPublisher>());
+}
 if (string.Equals(builder.Configuration["AI:Provider"], "openai", StringComparison.OrdinalIgnoreCase))
 {
     builder.Services.AddHttpClient<OpenAiLlmProvider>(client =>
@@ -95,7 +128,11 @@ if (string.Equals(builder.Configuration["AI:Provider"], "openai", StringComparis
         client.BaseAddress = new Uri("https://api.openai.com/v1/");
         client.Timeout = TimeSpan.FromSeconds(builder.Configuration.GetValue("AI:TimeoutSeconds", 30));
     });
-    builder.Services.AddScoped<ILLMProvider>(serviceProvider => serviceProvider.GetRequiredService<OpenAiLlmProvider>());
+    builder.Services.AddScoped<ILLMProvider>(serviceProvider => new CachedLlmProvider(
+        serviceProvider.GetRequiredService<OpenAiLlmProvider>(),
+        serviceProvider.GetRequiredService<Microsoft.Extensions.Caching.Distributed.IDistributedCache>(),
+        serviceProvider.GetRequiredService<IConfiguration>(),
+        serviceProvider.GetRequiredService<ILogger<CachedLlmProvider>>()));
 }
 else
 {
@@ -150,12 +187,14 @@ app.UseForwardedHeaders();
 app.UseCors("frontend");
 app.Use(async (context, next) =>
 {
-    var correlationId = context.Request.Headers["X-Correlation-ID"].FirstOrDefault() ?? Guid.NewGuid().ToString("N");
+    var requestedCorrelationId = context.Request.Headers["X-Correlation-ID"].FirstOrDefault();
+    var correlationId = !string.IsNullOrWhiteSpace(requestedCorrelationId) && requestedCorrelationId.Length <= 100
+        ? requestedCorrelationId
+        : Guid.NewGuid().ToString("N");
     context.TraceIdentifier = correlationId;
     context.Response.Headers["X-Correlation-ID"] = correlationId;
     await next();
 });
-app.UseRateLimiter();
 app.UseAuthentication();
 app.Use(async (context, next) =>
 {
@@ -190,6 +229,7 @@ app.Use(async (context, next) =>
 
     await next();
 });
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
@@ -451,6 +491,9 @@ agentManagers.MapPost("/{agentId:guid}/proposals", async (
     GenerateAgentProposalRequest request,
     TenantContext tenantContext,
     VoytekDbContext dbContext,
+    AgentProposalContextRetriever contextRetriever,
+    IAgentProposalRateLimiter proposalRateLimiter,
+    IAgentProposalEventPublisher proposalEventPublisher,
     ILLMProvider llmProvider,
     HttpContext httpContext,
     CancellationToken cancellationToken) =>
@@ -474,9 +517,31 @@ agentManagers.MapPost("/{agentId:guid}/proposals", async (
         return Results.Conflict(new { message = "Only active agents without an enabled kill switch can generate proposals." });
     }
 
+    var rateLimitSubject = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? httpContext.Connection.RemoteIpAddress?.ToString()
+        ?? "anonymous";
+    if (!await proposalRateLimiter.IsAllowedAsync($"{tenantContext.TenantId}:{rateLimitSubject}", cancellationToken))
+    {
+        return Results.StatusCode(StatusCodes.Status429TooManyRequests);
+    }
+
+    var instruction = request.Instruction.Trim();
+    var retrievedContext = await contextRetriever.RetrieveAsync(agent, instruction, cancellationToken);
     var proposal = await llmProvider.ProposeAsync(
-        new LlmProposalRequest(tenantContext.TenantId!.Value, agent.Id, request.Instruction.Trim(), httpContext.TraceIdentifier),
+        new LlmProposalRequest(tenantContext.TenantId!.Value, agent.Id, instruction, httpContext.TraceIdentifier, retrievedContext),
         cancellationToken);
+    if (!proposal.Cached)
+    {
+        await proposalEventPublisher.PublishAsync(
+            new AgentProposalGeneratedEvent(
+                Guid.NewGuid(),
+                proposal.Provider,
+                proposal.Model,
+                proposal.InputTokens,
+                proposal.OutputTokens,
+                httpContext.TraceIdentifier),
+            cancellationToken);
+    }
     return Results.Ok(proposal);
 }).RequireRateLimiting("ai-proposals");
 
