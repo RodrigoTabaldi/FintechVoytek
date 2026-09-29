@@ -58,7 +58,7 @@ These are screenshots of the current application, not product mockups.
   </tr>
   <tr>
     <td><img src="docs/images/shadow-mode.png" alt="Shadow Mode decisions" width="100%"><br><strong>Shadow Mode</strong></td>
-    <td><img src="docs/images/agent-commerce.png" alt="Agent commerce page marked as planned" width="100%"><br><strong>Agent commerce (planned)</strong></td>
+    <td><img src="docs/images/login.png" alt="Voytek sign-up screen" width="100%"><br><strong>Login and sign-up</strong></td>
   </tr>
 </table>
 
@@ -77,21 +77,13 @@ These are screenshots of the current application, not product mockups.
 The MVP uses a modular monolith: one ASP.NET Core API hosts the application modules, with PostgreSQL persistence. The React single-page application calls the versioned HTTP API. This keeps domain areas separated in code without requiring independently deployed services.
 
 ~~~mermaid
-flowchart LR
-    User[Organization user] --> Web[Web app<br/>React and TypeScript]
-    Web -->|HTTP and JSON| API[ASP.NET Core API<br/>.NET 8]
-    Agent[Agent or API client] -->|Authenticated request| API
-    API --> Auth[Identity and JWT]
-    API --> Domain[Agents, objectives,<br/>policies and authorization]
-    API --> Records[Budgets, approvals,<br/>Shadow Mode, ledger and audit]
-    API --> SaaS[SaaS subscription review]
-    API --> LLM[LLM provider<br/>optional / can be disabled]
-    Auth --> DB[(PostgreSQL)]
-    Domain --> DB
-    Records --> DB
-    SaaS --> DB
-    LLM -.->|Proposal only| Domain
-    API --> Health[Health endpoints]
+flowchart TB
+    User[Organization users] --> Web[Web app<br/>React and TypeScript]
+    Web --> API[Voytek API<br/>ASP.NET Core and .NET 8]
+    Client[Agents and API clients] --> API
+    API --> Modules[Domain modules<br/>Identity, agents, policies, budgets, approvals, audit]
+    Modules --> DB[(PostgreSQL<br/>EF Core and Npgsql)]
+    API -. Proposal generation only .-> LLM[Optional LLM provider]
 ~~~
 
 An authorization request is evaluated against configured domain rules. Shadow Mode records the evaluation without reserving a logical budget. An allowed request outside Shadow Mode reserves logical budget; it still does not cause an external payment.
@@ -298,7 +290,7 @@ Estas imagens mostram a aplicação atual, não protótipos.
   </tr>
   <tr>
     <td><img src="docs/images/shadow-mode.png" alt="Decisões em Shadow Mode" width="100%"><br><strong>Shadow Mode</strong></td>
-    <td><img src="docs/images/agent-commerce.png" alt="Tela de agent commerce marcada como planejada" width="100%"><br><strong>Agent commerce (planejado)</strong></td>
+    <td><img src="docs/images/login.png" alt="Tela de login e cadastro da Voytek" width="100%"><br><strong>Login e cadastro</strong></td>
   </tr>
 </table>
 
@@ -317,21 +309,13 @@ Estas imagens mostram a aplicação atual, não protótipos.
 O MVP usa um monólito modular: uma API ASP.NET Core hospeda os módulos da aplicação e persiste os dados no PostgreSQL. O aplicativo React de página única consome a API HTTP versionada. Assim, as áreas de domínio têm limites no código sem exigir serviços implantados de forma independente.
 
 ~~~mermaid
-flowchart LR
-    User[Usuário da organização] --> Web[Painel web<br/>React e TypeScript]
-    Web -->|HTTP e JSON| API[API ASP.NET Core<br/>.NET 8]
-    Agent[Agente ou cliente de API] -->|Solicitação autenticada| API
-    API --> Auth[Identity e JWT]
-    API --> Domain[Agentes, objetivos,<br/>políticas e autorização]
-    API --> Records[Budgets, aprovações,<br/>Shadow Mode, ledger e auditoria]
-    API --> SaaS[Revisão de assinaturas SaaS]
-    API --> LLM[Provedor LLM<br/>opcional / desativável]
-    Auth --> DB[(PostgreSQL)]
-    Domain --> DB
-    Records --> DB
-    SaaS --> DB
-    LLM -.->|Somente proposta| Domain
-    API --> Health[Endpoints de saúde]
+flowchart TB
+    User[Usuarios da organizacao] --> Web[Painel web<br/>React e TypeScript]
+    Web --> API[API Voytek<br/>ASP.NET Core e .NET 8]
+    Client[Agentes e clientes de API] --> API
+    API --> Modules[Modulos de dominio<br/>Identidade, agentes, politicas, budgets, aprovacoes, auditoria]
+    Modules --> DB[(PostgreSQL<br/>EF Core e Npgsql)]
+    API -. Somente geracao de propostas .-> LLM[Provedor LLM opcional]
 ~~~
 
 Uma solicitação de autorização é avaliada pelas regras de domínio configuradas. Shadow Mode registra a avaliação sem reservar budget lógico. Uma solicitação permitida fora do Shadow Mode reserva budget lógico, mas ainda não realiza pagamento externo.
